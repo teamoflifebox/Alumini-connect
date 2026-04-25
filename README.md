@@ -92,3 +92,4 @@ Host the database separately utilizing platforms like Supabase for immediate sca
 - Highly optimized premium, conversion-optimized Landing Page.
 - Strict Role Based Access SQL design mapping (Student, Alumni, etc).
 - Comprehensive Scholarship workflow with audit logs, academic scoring integrations, and disbursements.
+# Alumini-connect
