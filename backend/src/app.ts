@@ -4,7 +4,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler } from './core/middlewares/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
-import usersRoutes from './modules/users/users.routes';
+import profilesRoutes from './modules/profiles/profiles.routes';
+import userManagementRoutes from './modules/user-management/user-management.routes';
+import jobsRoutes from './modules/jobs/jobs.routes';
 
 const app: Express = express();
 
@@ -21,7 +23,9 @@ app.get('/api/health', (req, res) => {
 
 // Domain Routes Mount
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/profiles', profilesRoutes);
+app.use('/api/v1/user-management', userManagementRoutes);
+app.use('/api/v1/jobs', jobsRoutes);
 
 // Error Handling Middleware (must be after routes)
 app.use(errorHandler);
