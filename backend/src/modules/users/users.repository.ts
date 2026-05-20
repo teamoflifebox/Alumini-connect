@@ -2,13 +2,17 @@ import pool from '../../core/config/db';
 
 export class UsersRepository {
   async findById(id: string) {
-    const query = 'SELECT id, email, name, created_at FROM users WHERE id = $1';
+    const query = `
+      SELECT id, email, name, first_name, last_name, role, created_at, updated_at
+      FROM users WHERE id = $1`;
     const result = await pool.query(query, [id]);
     return result.rows[0];
   }
 
   async findAll() {
-    const query = 'SELECT id, email, name, created_at FROM users';
+    const query = `
+      SELECT id, email, name, first_name, last_name, role, created_at, updated_at
+      FROM users`;
     const result = await pool.query(query);
     return result.rows;
   }
