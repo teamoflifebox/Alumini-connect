@@ -36,15 +36,9 @@ const createLimiter = (
 export let globalApiLimiter: RequestHandler = (_req, _res, next) => next();
 export let authLimiter: RequestHandler = (_req, _res, next) => next();
 export let registerLimiter: RequestHandler = (_req, _res, next) => next();
-/** POST /api/auth/forgot-password — 5 requests per hour per IP */
-export let forgotPasswordLimiter: RequestHandler = (_req, _res, next) => next();
-/** POST /api/auth/reset-password — 10 requests per hour per IP */
-export let resetPasswordLimiter: RequestHandler = (_req, _res, next) => next();
 
 export const initRateLimiters = () => {
   globalApiLimiter = createLimiter('global', 15 * 60 * 1000, 100);
   authLimiter = createLimiter('auth', 15 * 60 * 1000, 10);
   registerLimiter = createLimiter('register', 60 * 60 * 1000, 5);
-  forgotPasswordLimiter = createLimiter('forgot-password', 60 * 60 * 1000, 5);
-  resetPasswordLimiter = createLimiter('reset-password', 60 * 60 * 1000, 10);
 };

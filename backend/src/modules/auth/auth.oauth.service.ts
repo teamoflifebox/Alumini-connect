@@ -29,7 +29,7 @@ export class AuthOAuthService {
     return bcrypt.hash(generateSecureToken(48), 10);
   }
 
-  public async findOrCreateOAuthUser(data: {
+  private async findOrCreateOAuthUser(data: {
     email: string;
     name: string;
     provider: 'google' | 'linkedin';
