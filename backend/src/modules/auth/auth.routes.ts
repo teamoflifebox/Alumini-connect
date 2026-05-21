@@ -3,7 +3,12 @@ import { authController } from './auth.controller';
 import { authenticate } from './auth.middleware';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { validate } from '../../core/middlewares/validate';
-import { authLimiter, registerLimiter } from '../../middleware/rateLimit.middleware';
+import {
+  authLimiter,
+  forgotPasswordLimiter,
+  registerLimiter,
+  resetPasswordLimiter,
+} from '../../middleware/rateLimit.middleware';
 import {
   alumniRegisterSchema,
   forgotPasswordSchema,
@@ -64,14 +69,14 @@ router.post(
 // Password management
 router.post(
   '/forgot-password',
-  authLimiter,
+  forgotPasswordLimiter,
   validate(forgotPasswordSchema),
   asyncHandler(authController.forgotPassword.bind(authController))
 );
 
 router.post(
   '/reset-password',
-  authLimiter,
+  resetPasswordLimiter,
   validate(resetPasswordSchema),
   asyncHandler(authController.resetPassword.bind(authController))
 );

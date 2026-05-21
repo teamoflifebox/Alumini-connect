@@ -1,24 +1,33 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
-/** Generate a cryptographically secure random token */
+/** bcrypt cost for stored reset-token hashes (must match verify) */
+export const TOKEN_BCRYPT_ROUNDS = 12;
+
+/** bcrypt cost for new passwords set via reset-password */
+export const PASSWORD_BCRYPT_ROUNDS = 12;
+
+/**
+ * Generate a cryptographically secure random token (hex).
+ * Used for password reset secrets and similar opaque values.
+ */
 export const generateSecureToken = (bytes = 32): string => {
   return crypto.randomBytes(bytes).toString('hex');
 };
 
-/** Hash a token before storing in the database */
+/** Hash a raw token before persisting (never store plaintext reset secrets). */
 export const hashToken = async (token: string): Promise<string> => {
-  return bcrypt.hash(token, 10);
+  return bcrypt.hash(token, TOKEN_BCRYPT_ROUNDS);
 };
 
-/** Compare a raw token with its stored hash */
+/** Compare a raw token with its stored bcrypt hash. */
 export const verifyTokenHash = async (token: string, hash: string): Promise<boolean> => {
   return bcrypt.compare(token, hash);
 };
 
 /**
- * Composite token: userId.randomHex
- * Allows lookup by user id while keeping the secret part hashed in DB.
+ * Opaque transport token: `userId.secretHex`
+ * DB stores only bcrypt(secret); userId allows lookup without scanning all users.
  */
 export const buildCompositeToken = (userId: string | number, secret: string): string => {
   return `${userId}.${secret}`;

@@ -1,21 +1,39 @@
 import Redis from 'ioredis';
 import { env } from './env';
 
-export const redis = new Redis({
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
-  password: env.REDIS_PASSWORD,
-  maxRetriesPerRequest: 1,
-  retryStrategy: () => null, // Don't retry on connection failure
-  lazyConnect: true,
-  enableOfflineQueue: false, // Don't queue commands when offline
-});
+/**
+ * Redis client for rate-limit persistence (rate-limit-redis).
+ * Prefer REDIS_URL for hosted Redis (Redis Cloud, Railway, Upstash-style URLs).
+ */
+function createRedisClient(): Redis {
+  if (env.REDIS_URL) {
+    return new Redis(env.REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+      enableReadyCheck: true,
+      enableOfflineQueue: false,
+      retryStrategy: () => null,
+    });
+  }
+
+  return new Redis({
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
+    password: env.REDIS_PASSWORD,
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    enableReadyCheck: true,
+    enableOfflineQueue: false,
+    retryStrategy: () => null,
+  });
+}
+
+export const redis = createRedisClient();
 
 let redisReady = false;
 
 // Suppress error events to prevent unhandled error warnings
 redis.on('error', (err) => {
-  // Silently ignore connection errors - we handle them in connectRedis
   if (!err.message.includes('ECONNREFUSED')) {
     console.warn('Redis error:', err.message);
   }
@@ -27,17 +45,28 @@ export const connectRedis = async (): Promise<boolean> => {
   try {
     if (redis.status === 'ready') {
       redisReady = true;
+      console.log('Redis connected successfully.');
       return true;
     }
+
     await redis.connect();
-    await redis.ping();
+    const pong = await redis.ping();
+    if (pong !== 'PONG') {
+      throw new Error(`Unexpected PING reply: ${pong}`);
+    }
+
     redisReady = true;
-    console.log('✓ Redis connected successfully.');
+    const endpoint = env.REDIS_URL ? '(REDIS_URL)' : `${env.REDIS_HOST}:${env.REDIS_PORT}`;
+    console.log(`✓ Redis connected successfully (${endpoint}).`);
     return true;
   } catch (error) {
     redisReady = false;
+    if (redis.status !== 'end') {
+      await redis.disconnect();
+    }
     const message = error instanceof Error ? error.message : String(error);
-    console.warn(`⚠ Redis unavailable (${message}). Using in-memory rate limiting.`);
+    console.warn(`⚠ Redis unavailable (${message}). Rate limiting falls back to in-memory.`);
+    console.warn('Start Redis locally: docker run -d --name redis -p 6379:6379 redis:alpine');
     return false;
   }
 };
