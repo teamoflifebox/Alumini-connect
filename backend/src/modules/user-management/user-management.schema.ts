@@ -1,11 +1,30 @@
-export const verifyAlumniSchema = (data: any) => {
-  const errors = [];
-  
-  if (!data.user_id) errors.push('User ID is required');
-  if (typeof data.is_verified !== 'boolean') errors.push('is_verified must be a boolean');
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-};
+import { z } from 'zod';
+
+export const createStudentSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const createAdminSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const verifyAlumniSchema = z.object({
+  user_id: z.string().min(1, 'User ID is required'),
+  is_verified: z.boolean(),
+});
+
+export const updateUserRoleSchema = z.object({
+  role: z.enum(['student', 'alumni', 'recruiter']),
+});
+
+export const userIdParamSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+});
+
+export const roleParamSchema = z.object({
+  role: z.enum(['student', 'alumni', 'recruiter', 'admin']),
+});

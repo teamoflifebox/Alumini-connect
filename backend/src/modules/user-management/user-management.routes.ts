@@ -1,13 +1,71 @@
 import { Router } from 'express';
 import { userManagementController } from './user-management.controller';
-import { requireAuth } from '../auth/auth.middleware';
+import { authenticate, authorizeRoles } from '../auth/auth.middleware';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { validate } from '../../core/middlewares/validate';
+import {
+  createStudentSchema,
+  createAdminSchema,
+  verifyAlumniSchema,
+  updateUserRoleSchema,
+  userIdParamSchema,
+  roleParamSchema,
+} from './user-management.schema';
 
 const router = Router();
 
-// In a real app, you would also have an requireAdmin middleware here!
-router.use(requireAuth); 
+// All routes require admin authentication
+router.use(authenticate);
+router.use(authorizeRoles('admin'));
 
-router.get('/', userManagementController.getAllUsers);
-router.patch('/verify', userManagementController.verifyAlumni);
+/**
+ * Admin User Management Routes
+ */
+
+// Create a student account (admin only)
+router.post(
+  '/students',
+  validate(createStudentSchema),
+  asyncHandler(userManagementController.createStudent.bind(userManagementController))
+);
+
+// Create an admin account (admin only)
+router.post(
+  '/admins',
+  validate(createAdminSchema),
+  asyncHandler(userManagementController.createAdmin.bind(userManagementController))
+);
+
+// Get all users
+router.get(
+  '/users',
+  asyncHandler(userManagementController.getAllUsers.bind(userManagementController))
+);
+
+// Get users by role
+router.get(
+  '/users/role/:role',
+  asyncHandler(userManagementController.getUsersByRole.bind(userManagementController))
+);
+
+// Verify/unverify alumni account
+router.patch(
+  '/alumni/verify',
+  validate(verifyAlumniSchema),
+  asyncHandler(userManagementController.verifyAlumni.bind(userManagementController))
+);
+
+// Update user role
+router.patch(
+  '/users/:userId/role',
+  validate(updateUserRoleSchema),
+  asyncHandler(userManagementController.updateUserRole.bind(userManagementController))
+);
+
+// Delete user
+router.delete(
+  '/users/:userId',
+  asyncHandler(userManagementController.deleteUser.bind(userManagementController))
+);
 
 export default router;

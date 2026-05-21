@@ -1,0 +1,2 @@
+-- This migration is now handled by 000_create_users_table.sql
+-- Keeping file for migration history consistency
