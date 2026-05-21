@@ -1,19 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  onboardingCompleted?: boolean;
-  avatarUrl?: string;
-}
+import type { User } from '../types';
 
 interface AuthState {
   user: User | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
-  login: (userData: User) => void;
+
+  // Actions
+  setAuth: (user: User, accessToken: string) => void;
+  setAccessToken: (accessToken: string) => void;
   logout: () => void;
 }
 
@@ -21,12 +17,26 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      accessToken: null,
       isAuthenticated: false,
-      login: (userData) => set({ user: userData, isAuthenticated: true }),
-      logout: () => set({ user: null, isAuthenticated: false }),
+
+      setAuth: (user, accessToken) =>
+        set({ user, accessToken, isAuthenticated: true }),
+
+      setAccessToken: (accessToken) =>
+        set({ accessToken }),
+
+      logout: () =>
+        set({ user: null, accessToken: null, isAuthenticated: false }),
     }),
     {
-      name: 'auth-storage', // saves to local storage
+      name: 'auth-storage',
+      // Only persist user and auth state, NOT the token (security best practice)
+      // The accessToken is held in memory; the refreshToken is in an HttpOnly cookie
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

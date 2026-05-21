@@ -1,0 +1,28 @@
+import { api } from './client';
+import type { LoginPayload, AuthResponse } from '../types';
+
+export const authApi = {
+  /** Alumni / Recruiter / Donor self-register */
+  register: (payload: { name: string; email: string; password: string; role?: string }) =>
+    api.post<{ data: AuthResponse }>('/auth/register', payload),
+
+  /** Universal login for all roles */
+  login: (payload: LoginPayload) =>
+    api.post<{ data: AuthResponse }>('/auth/login', payload),
+
+  /** Refresh access token using HttpOnly cookie */
+  refresh: () =>
+    api.post<{ data: { accessToken: string } }>('/auth/refresh'),
+
+  /** Logout and clear the refresh token cookie server-side */
+  logout: () =>
+    api.post('/auth/logout'),
+
+  /** Forgot password */
+  forgotPassword: (email: string) =>
+    api.post('/auth/forgot-password', { email }),
+
+  /** Reset password with token */
+  resetPassword: (token: string, password: string) =>
+    api.post('/auth/reset-password', { token, password }),
+};
