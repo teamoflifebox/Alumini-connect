@@ -7,11 +7,12 @@ import {
   SafeUser,
   TokenPair,
   UserRecord,
-  UserRole,
+  PrimaryRole,
 } from './auth.types';
 import { AppError } from '../../utils/AppError';
 import { env } from '../../config/env';
 import { authVerificationService } from './auth.verification.service';
+import { rbacService } from '../rbac/rbac.service';
 
 export { AppError };
 
@@ -26,16 +27,22 @@ export class AuthService {
     return `${firstName} ${lastName}`.trim();
   }
 
-  private toSafeUser(user: UserRecord): SafeUser {
+  private async toSafeUser(user: UserRecord): Promise<SafeUser> {
     const name =
       user.name?.trim() || this.formatName(user.first_name || '', user.last_name || '');
+
+    // Get user's enabled capability groups (stored as "modules" in database)
+    const capabilityGroups = await rbacService.getUserModules(user.id);
 
     return {
       id: String(user.id),
       name,
       email: user.email,
-      role: user.role,
+      primary_role: user.primary_role,
+      capability_groups: capabilityGroups as any[],
       is_verified: user.is_verified,
+      is_approved: user.is_approved,
+      approval_status: user.approval_status,
       provider: user.provider || 'local',
       avatar_url: user.avatar_url ?? null,
       created_at: user.created_at,
@@ -63,10 +70,15 @@ export class AuthService {
 
   private async issueTokens(user: UserRecord): Promise<TokenPair> {
     this.assertSecrets();
+    
+    // Get user's enabled capability groups (stored as "modules" in database)
+    const capabilityGroups = await rbacService.getUserModules(user.id);
+    
     const payload: JwtPayload = {
       id: String(user.id),
       email: user.email,
-      role: user.role,
+      primary_role: user.primary_role,
+      capability_groups: capabilityGroups as any[],
     };
     const accessToken = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
@@ -77,16 +89,17 @@ export class AuthService {
 
   async buildAuthResponseForUser(user: UserRecord): Promise<AuthResponse> {
     const tokens = await this.issueTokens(user);
+    const safeUser = await this.toSafeUser(user);
     return {
-      user: this.toSafeUser(user),
+      user: safeUser,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
   }
 
-  private async verifyCredentials(email: string, password: string, role: UserRole) {
+  private async verifyCredentials(email: string, password: string, role: PrimaryRole) {
     const user = await authRepository.findUserByEmail(email);
-    if (!user || user.role !== role) {
+    if (!user || user.primary_role !== role) {
       throw new AppError('Invalid credentials', 401);
     }
 
@@ -100,6 +113,14 @@ export class AuthService {
     }
 
     authVerificationService.assertEmailVerified(user);
+
+    // Check approval status for non-admin/non-student users
+    if (user.role !== 'admin' && user.role !== 'student') {
+      if (!user.is_approved || user.approval_status !== 'approved') {
+        throw new AppError('Your account is pending admin approval', 403);
+      }
+    }
+
     return user;
   }
 
@@ -118,7 +139,14 @@ export class AuthService {
     return this.buildAuthResponseForUser(user);
   }
 
-  async alumniRegister(name: string, email: string, password: string): Promise<AuthResponse> {
+  async alumniRegister(
+    name: string, 
+    email: string, 
+    password: string,
+    role: PrimaryRole = 'alumni',
+    company?: string,
+    graduation_year?: number
+  ): Promise<AuthResponse> {
     const existingUser = await authRepository.findUserByEmail(email);
     if (existingUser) {
       throw new AppError('Email already registered', 409);
@@ -129,9 +157,11 @@ export class AuthService {
       name,
       email,
       passwordHash,
-      role: 'alumni',
+      role,
       isVerified: false,
       provider: 'local',
+      company,
+      graduation_year,
     });
 
     try {
@@ -141,25 +171,6 @@ export class AuthService {
     }
 
     return this.buildAuthResponseForUser(user);
-  }
-
-  async createStudent(name: string, email: string, password: string): Promise<SafeUser> {
-    const existingUser = await authRepository.findUserByEmail(email);
-    if (existingUser) {
-      throw new AppError('Email already in use', 409);
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = await authRepository.createUser({
-      name,
-      email,
-      passwordHash,
-      role: 'student',
-      isVerified: true,
-      provider: 'local',
-    });
-
-    return this.toSafeUser(user);
   }
 
   async refreshSession(refreshToken: string): Promise<AuthResponse> {
@@ -198,8 +209,22 @@ export class AuthService {
     return this.toSafeUser(user);
   }
 
-  async register(userData: { name: string; email: string; password: string }): Promise<AuthResponse> {
-    return this.alumniRegister(userData.name, userData.email, userData.password);
+  async register(userData: { 
+    name: string; 
+    email: string; 
+    password: string;
+    role: PrimaryRole;
+    company?: string;
+    graduation_year?: number;
+  }): Promise<AuthResponse> {
+    return this.alumniRegister(
+      userData.name, 
+      userData.email, 
+      userData.password,
+      userData.role,
+      userData.company,
+      userData.graduation_year
+    );
   }
 
   async login(credentials: { email: string; password: string }) {
@@ -218,6 +243,14 @@ export class AuthService {
     }
 
     authVerificationService.assertEmailVerified(user);
+
+    // Check approval status for non-admin/non-student users
+    if (user.role !== 'admin' && user.role !== 'student') {
+      if (!user.is_approved || user.approval_status !== 'approved') {
+        throw new AppError('Your account is pending admin approval', 403);
+      }
+    }
+
     return this.buildAuthResponseForUser(user);
   }
 }

@@ -12,14 +12,17 @@ const splitName = (name: string) => {
 export class AuthRepository {
   async findUserByEmail(email: string): Promise<UserRecord | undefined> {
     const result = await pool.query<UserRecord>(
-      'SELECT * FROM users WHERE LOWER(email) = LOWER($1)',
+      'SELECT *, primary_role as role FROM users WHERE LOWER(email) = LOWER($1)',
       [email]
     );
     return result.rows[0];
   }
 
   async findUserById(id: string): Promise<UserRecord | undefined> {
-    const result = await pool.query<UserRecord>('SELECT * FROM users WHERE id = $1', [id]);
+    const result = await pool.query<UserRecord>(
+      'SELECT *, primary_role as role FROM users WHERE id = $1',
+      [id]
+    );
     return result.rows[0];
   }
 
@@ -43,15 +46,23 @@ export class AuthRepository {
     provider?: AuthProvider;
     providerId?: string;
     avatarUrl?: string;
+    company?: string; // For recruiters
+    graduation_year?: number; // For alumni
   }): Promise<UserRecord> {
     const { firstName, lastName, fullName } = splitName(data.name);
+    
+    // Determine approval status based on role
+    const isApproved = data.role === 'admin' || data.role === 'student';
+    const approvalStatus = isApproved ? 'approved' : 'pending';
+    
     const result = await pool.query<UserRecord>(
       `INSERT INTO users (
-         first_name, last_name, name, email, password_hash, role,
-         is_verified, provider, provider_id, avatar_url
+         first_name, last_name, name, email, password_hash, primary_role,
+         is_verified, is_approved, approval_status, provider, provider_id, avatar_url,
+         company, graduation_year
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+       RETURNING *, primary_role as role`,
       [
         firstName,
         lastName,
@@ -60,9 +71,13 @@ export class AuthRepository {
         data.passwordHash,
         data.role,
         data.isVerified ?? false,
+        isApproved,
+        approvalStatus,
         data.provider ?? 'local',
         data.providerId ?? null,
         data.avatarUrl ?? null,
+        data.company ?? null,
+        data.graduation_year ?? null,
       ]
     );
     return result.rows[0];

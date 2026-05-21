@@ -11,12 +11,6 @@ export const alumniRegisterSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-export const createStudentSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(255),
-  email: z.string().email('Valid email is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
 export const refreshTokenSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
 });
@@ -38,14 +32,11 @@ export const linkedinAuthSchema = z.object({
   accessToken: z.string().min(1, 'LinkedIn accessToken is required'),
 });
 
-export const registerSchema = (data: { email?: string; password?: string; name?: string }) => {
-  const errors: string[] = [];
-  if (!data.email || !data.email.includes('@')) errors.push('Valid email is required');
-  if (!data.password || data.password.length < 6) errors.push('Password must be at least 6 characters');
-  if (!data.name) errors.push('Name is required');
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-  };
-};
+export const registerSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['student', 'alumni', 'recruiter', 'donor']),
+  company: z.string().optional(), // For recruiters
+  graduation_year: z.number().int().min(1900).max(new Date().getFullYear()).optional(), // For alumni
+});
