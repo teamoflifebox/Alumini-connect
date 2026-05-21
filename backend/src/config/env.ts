@@ -47,9 +47,18 @@ export const env = {
     process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || process.env.SECRET_KEY || '',
   JWT_REFRESH_SECRET:
     process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || process.env.SECRET_KEY || '',
-  REDIS_HOST: process.env.REDIS_HOST || '127.0.0.1',
+  /** Full Redis URL (optional): redis://[:password@]host:port[/db] or rediss:// for TLS */
+  get REDIS_URL() {
+    const url = trim(process.env.REDIS_URL);
+    return url || undefined;
+  },
+  REDIS_HOST: process.env.REDIS_HOST?.trim() || '127.0.0.1',
   REDIS_PORT: Number(process.env.REDIS_PORT) || 6379,
-  REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined,
+  /** Omit AUTH when unset or empty */
+  get REDIS_PASSWORD() {
+    const p = trim(process.env.REDIS_PASSWORD);
+    return p || undefined;
+  },
   SMTP_HOST: process.env.SMTP_HOST || '',
   SMTP_PORT: Number(process.env.SMTP_PORT) || 587,
   SMTP_USER: process.env.SMTP_USER || '',
@@ -60,6 +69,9 @@ export const env = {
   },
   get LINKEDIN_CLIENT_ID() {
     return trim(process.env.LINKEDIN_CLIENT_ID);
+  },
+  get LINKEDIN_CLIENT_SECRET() {
+    return trim(process.env.LINKEDIN_CLIENT_SECRET);
   },
   REQUIRE_ALUMNI_EMAIL_VERIFICATION: bool(process.env.REQUIRE_ALUMNI_EMAIL_VERIFICATION, true),
   REQUIRE_STUDENT_EMAIL_VERIFICATION: bool(process.env.REQUIRE_STUDENT_EMAIL_VERIFICATION, false),

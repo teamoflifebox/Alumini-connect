@@ -1,16 +1,38 @@
 import { env } from '../config/env';
 import { isMailConfigured, mailTransporter } from '../config/mail';
 
-interface SendEmailOptions {
+export interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  /** When true and SMTP is off (dev), log only the banner + reset URL (no token in generic logs). */
+  passwordReset?: boolean;
+  /** Full reset URL including raw token (for dev console only). */
+  passwordResetUrl?: string;
 }
 
+/**
+ * Development-only console output for password reset (matches Postman testing flow).
+ * Never logs passwords or token hashes.
+ */
+export const logPasswordResetDevConsole = (resetUrl: string): void => {
+  console.log('================================');
+  console.log('PASSWORD RESET URL:');
+  console.log(resetUrl);
+  console.log('================================');
+};
+
+/**
+ * Send email via Nodemailer, or in development without SMTP log actionable content.
+ */
 export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
   if (!isMailConfigured()) {
     if (env.NODE_ENV === 'development') {
+      if (options.passwordReset && options.passwordResetUrl) {
+        logPasswordResetDevConsole(options.passwordResetUrl);
+        return;
+      }
       console.log('--- EMAIL (dev mode, SMTP not configured) ---');
       console.log(`To: ${options.to}`);
       console.log(`Subject: ${options.subject}`);

@@ -25,9 +25,19 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email('Valid email is required'),
 });
 
+/** Strong password for reset flow only (8+, upper, lower, number, special). */
+const strongPasswordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/;
+
 export const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Reset token is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(
+      strongPasswordRegex,
+      'Password must include uppercase, lowercase, a number, and a special character'
+    ),
 });
 
 export const googleAuthSchema = z.object({
