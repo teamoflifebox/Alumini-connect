@@ -8,9 +8,11 @@ import { env } from './env';
 function createRedisClient(): Redis {
   if (env.REDIS_URL) {
     return new Redis(env.REDIS_URL, {
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: 1,
       lazyConnect: true,
       enableReadyCheck: true,
+      enableOfflineQueue: false,
+      retryStrategy: () => null,
     });
   }
 
@@ -18,25 +20,24 @@ function createRedisClient(): Redis {
     host: env.REDIS_HOST,
     port: env.REDIS_PORT,
     password: env.REDIS_PASSWORD,
-    maxRetriesPerRequest: 3,
+    maxRetriesPerRequest: 1,
     lazyConnect: true,
     enableReadyCheck: true,
-    retryStrategy(times: number) {
-      const delay = Math.min(times * 200, 2000);
-      return delay;
-    },
+    enableOfflineQueue: false,
+    retryStrategy: () => null,
   });
 }
 
 export const redis = createRedisClient();
-redis.on('error', (err) => {
-  // Avoid noisy unhandled ioredis events while keeping a concise signal in logs.
-  if (redisReady) {
-    console.warn(`Redis connection error: ${err.message}`);
-  }
-});
 
 let redisReady = false;
+
+// Suppress error events to prevent unhandled error warnings
+redis.on('error', (err) => {
+  if (!err.message.includes('ECONNREFUSED')) {
+    console.warn('Redis error:', err.message);
+  }
+});
 
 export const isRedisReady = () => redisReady;
 
@@ -56,7 +57,7 @@ export const connectRedis = async (): Promise<boolean> => {
 
     redisReady = true;
     const endpoint = env.REDIS_URL ? '(REDIS_URL)' : `${env.REDIS_HOST}:${env.REDIS_PORT}`;
-    console.log(`Redis connected successfully (${endpoint}).`);
+    console.log(`✓ Redis connected successfully (${endpoint}).`);
     return true;
   } catch (error) {
     redisReady = false;
@@ -64,10 +65,8 @@ export const connectRedis = async (): Promise<boolean> => {
       await redis.disconnect();
     }
     const message = error instanceof Error ? error.message : String(error);
-    console.warn(`Redis unavailable (${message}). Rate limiting falls back to in-memory.`);
-    console.warn(
-      'Start Redis locally: docker run -d --name redis -p 6379:6379 redis:alpine'
-    );
+    console.warn(`⚠ Redis unavailable (${message}). Rate limiting falls back to in-memory.`);
+    console.warn('Start Redis locally: docker run -d --name redis -p 6379:6379 redis:alpine');
     return false;
   }
 };

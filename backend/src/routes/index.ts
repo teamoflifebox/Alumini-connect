@@ -1,25 +1,34 @@
 import { Router } from 'express';
-import healthRoutes from './health.routes';
 import authRoutes from '../modules/auth/auth.routes';
-import legacyAuthRoutes from '../modules/auth/legacy.routes';
-import adminRoutes from '../modules/auth/admin.routes';
-import { studentRouter, alumniRouter } from '../modules/auth/role.routes';
-import usersRoutes from '../modules/users/users.routes';
+import userManagementRoutes from '../modules/user-management/user-management.routes';
+import profilesRoutes from '../modules/profiles/profiles.routes';
+import jobsRoutes from '../modules/jobs/jobs.routes';
+import rbacRoutes from '../modules/rbac/rbac.routes';
 
 /**
- * Central API route registration (API Gateway style)
+ * Central API route registration
+ * All routes are prefixed with /api (set in createApp.ts)
+ * 
+ * Auth Flow:
+ *  - Alumni/Recruiters/Donors self-register via /auth/alumni/register
+ *  - Students are created exclusively by Admins via /user-management/students
+ *  - All login happens via /auth/login
  */
 const router = Router();
 
+// Authentication (login, register, OAuth, password reset)
 router.use('/auth', authRoutes);
-router.use('/admin', adminRoutes);
-router.use('/student', studentRouter);
-router.use('/alumni', alumniRouter);
-router.use('/users', usersRoutes);
 
-// Backward-compatible v1 routes
-router.use('/v1/auth', legacyAuthRoutes);
-router.use('/v1/users', usersRoutes);
+// Admin: User creation, role management, onboarding approvals
+router.use('/user-management', userManagementRoutes);
 
-export { healthRoutes };
+// Profile: Community-facing data (skills, experience, bio)
+router.use('/profiles', profilesRoutes);
+
+// Jobs & Referrals
+router.use('/jobs', jobsRoutes);
+
+// RBAC: Roles, capabilities, permissions management
+router.use('/rbac', rbacRoutes);
+
 export default router;

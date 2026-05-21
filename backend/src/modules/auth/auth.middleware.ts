@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { JwtPayload, UserRole } from './auth.types';
+import { JwtPayload, PrimaryRole } from './auth.types';
 
 export interface AuthRequest extends Request {
   user?: JwtPayload;
@@ -29,14 +29,14 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 };
 
 export const authorizeRoles =
-  (...roles: UserRole[]) =>
+  (...roles: PrimaryRole[]) =>
   (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       res.status(401).json({ status: 'error', message: 'Unauthorized' });
       return;
     }
 
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.primary_role)) {
       res.status(403).json({ status: 'error', message: 'Forbidden: Insufficient permissions' });
       return;
     }

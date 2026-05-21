@@ -20,6 +20,15 @@ import {
 
 const router = Router();
 
+// Universal login endpoint (auto-detects role)
+router.post(
+  '/login',
+  authLimiter,
+  validate(loginSchema),
+  asyncHandler(authController.login.bind(authController))
+);
+
+// Role-specific login endpoints (for explicit role selection)
 router.post(
   '/admin/login',
   authLimiter,
@@ -35,19 +44,29 @@ router.post(
 );
 
 router.post(
-  '/alumni/register',
-  registerLimiter,
-  validate(alumniRegisterSchema),
-  asyncHandler(authController.alumniRegister.bind(authController))
-);
-
-router.post(
   '/alumni/login',
   authLimiter,
   validate(loginSchema),
   asyncHandler(authController.alumniLogin.bind(authController))
 );
 
+// Alumni self-registration
+router.post(
+  '/alumni/register',
+  registerLimiter,
+  validate(alumniRegisterSchema),
+  asyncHandler(authController.alumniRegister.bind(authController))
+);
+
+// Universal registration endpoint (defaults to alumni)
+router.post(
+  '/register',
+  registerLimiter,
+  validate(alumniRegisterSchema),
+  asyncHandler(authController.register.bind(authController))
+);
+
+// Password management
 router.post(
   '/forgot-password',
   forgotPasswordLimiter,
@@ -62,6 +81,7 @@ router.post(
   asyncHandler(authController.resetPassword.bind(authController))
 );
 
+// Email verification
 router.post(
   '/send-verification',
   authenticate,
@@ -70,6 +90,7 @@ router.post(
 
 router.get('/verify-email', asyncHandler(authController.verifyEmail.bind(authController)));
 
+// OAuth
 router.post(
   '/google',
   authLimiter,
@@ -84,6 +105,7 @@ router.post(
   asyncHandler(authController.linkedinLogin.bind(authController))
 );
 
+// Token management
 router.post('/refresh', asyncHandler(authController.refresh.bind(authController)));
 
 router.post('/logout', authenticate, asyncHandler(authController.logout.bind(authController)));

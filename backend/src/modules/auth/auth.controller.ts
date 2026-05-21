@@ -66,7 +66,8 @@ export class AuthController {
 
   async alumniRegister(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await authService.alumniRegister(req.body.name, req.body.email, req.body.password);
+      const { name, email, password } = req.body;
+      const result = await authService.alumniRegister(name, email, password);
       sendAuthResponse(res, result, 201);
     } catch (error) {
       next(error);
@@ -171,18 +172,17 @@ export class AuthController {
     }
   }
 
-  async createStudent(req: Request, res: Response, next: NextFunction) {
-    try {
-      const student = await authService.createStudent(req.body.name, req.body.email, req.body.password);
-      res.status(201).json({ status: 'success', data: { student } });
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await authService.register(req.body);
+      const { name, email, password, role, company, graduation_year } = req.body;
+      const result = await authService.register({
+        name,
+        email,
+        password,
+        role,
+        company,
+        graduation_year,
+      });
       sendAuthResponse(res, result, 201);
     } catch (error) {
       next(error);

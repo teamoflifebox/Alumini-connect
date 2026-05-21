@@ -1,7 +1,6 @@
 export {
   loginSchema,
   alumniRegisterSchema,
-  createStudentSchema,
   refreshTokenSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
