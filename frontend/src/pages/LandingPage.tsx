@@ -324,30 +324,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* TESTIMONIALS */}
-        <section className="py-24 bg-[#0a0a0c]">
-          <div className="max-w-7xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-16 text-center">Transforming lives, one connection at a time.</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { name: "Sarah J.", role: "Computer Science, Class of '24", quote: "The scholarship system allowed me to finish my senior year without financial stress. The UI is so simple, and tracking my application was seamless." },
-                { name: "David M.", role: "Senior Engineer at Google (Alum)", quote: "I wanted to give back to my university. Setting up a scholarship only took 5 minutes, and I get updates on how the students are doing!" },
-                { name: "Elena R.", role: "Campus Recruiter at Stripe", quote: "The quality of candidates we source through Gnan-AI is unmatched. The platform's filtering tools save our team hundreds of hours." }
-              ].map((t, i) => (
-                <div key={i} className="p-8 rounded-2xl border border-white/5 bg-white/[0.02]">
-                  <div className="flex gap-1 text-primary mb-4">
-                    {[1,2,3,4,5].map(star => <StarIcon key={star} />)}
-                  </div>
-                  <p className="text-white/80 italic mb-6 leading-relaxed">"{t.quote}"</p>
-                  <div>
-                    <div className="font-semibold text-white">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.role}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+
 
         {/* FINAL CTA */}
         <section className="py-24 relative overflow-hidden">

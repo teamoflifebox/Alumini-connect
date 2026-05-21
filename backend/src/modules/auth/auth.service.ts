@@ -114,12 +114,9 @@ export class AuthService {
 
     authVerificationService.assertEmailVerified(user);
 
-    // Check approval status for non-admin/non-student users
-    if (user.role !== 'admin' && user.role !== 'student') {
-      if (!user.is_approved || user.approval_status !== 'approved') {
-        throw new AppError('Your account is pending admin approval', 403);
-      }
-    }
+    // We no longer throw a 403 here for pending approval.
+    // Instead, we return the user, and the frontend will check user.is_approved
+    // and redirect them to the /pending-verification page!
 
     return user;
   }
@@ -244,12 +241,8 @@ export class AuthService {
 
     authVerificationService.assertEmailVerified(user);
 
-    // Check approval status for non-admin/non-student users
-    if (user.role !== 'admin' && user.role !== 'student') {
-      if (!user.is_approved || user.approval_status !== 'approved') {
-        throw new AppError('Your account is pending admin approval', 403);
-      }
-    }
+    // We allow login to succeed so the frontend can redirect to /pending-verification
+    // based on user.is_approved
 
     return this.buildAuthResponseForUser(user);
   }

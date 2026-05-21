@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, Briefcase, GraduationCap, ChevronRight, Eye, EyeOff, ArrowLeft, AlertCircle } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import { supabase } from '../lib/supabase';
+import { Mail, Lock, GraduationCap, ChevronRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { authApi } from '../api/auth.api';
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const isLogin = location.pathname === '/login';
   
-  const [role, setRole] = useState('student');
+  // Registration defaults to alumni/recruiter/donor in the new system.
+  const [role, setRole] = useState('alumni');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [formData, setFormData] = useState({ 
@@ -21,11 +21,9 @@ export default function AuthPage() {
     email: '', 
     password: '', 
     confirmPassword: '',
-    company: '',
-    degree: ''
   });
   
-  const login = useAuthStore(state => state.login);
+  const { setAuth } = useAuth();
 
   // Clear errors when switching modes
   useEffect(() => {
@@ -36,7 +34,6 @@ export default function AuthPage() {
     e.preventDefault();
     setErrorMsg('');
     setIsLoading(true);
-    console.log('--- Auth Attempt Started ---');
 
     try {
       if (!isLogin) {
@@ -47,52 +44,43 @@ export default function AuthPage() {
         if (formData.password.length < 6) {
           throw new Error('Password must be at least 6 characters.');
         }
+        if (role === 'student') {
+            throw new Error('Students must be registered by an administrator. Please contact your institution.');
+        }
 
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        // Call backend API
+        await authApi.register({
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
           email: formData.email,
           password: formData.password,
-          options: {
-            data: {
-              first_name: formData.firstName,
-              last_name: formData.lastName,
-              role,
-            }
-          }
+          role: role
         });
-
-        if (authError) throw authError;
-        if (!authData.user) throw new Error('Signup failed.');
         
-        // Manual profile sync (trigger also exists, this is redundant but safe)
-        await supabase.from('profiles').upsert({
-          id: authData.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          role,
-          degree: formData.degree,
-          headline: role === 'alumni' ? `${formData.company}` : 'Student'
-        });
+        // Registration successful -> go to pending verification page
+        navigate('/pending-verification');
 
       } else {
         // ── LOGIN ──────────────────────────────────────────────────
-        const { error: loginError } = await supabase.auth.signInWithPassword({
+        const response = await authApi.login({
           email: formData.email,
           password: formData.password,
         });
 
-        if (loginError) throw loginError;
-        console.log('Login request finished successfully');
-        // Note: Redirection is now handled globally in App.tsx on the SIGNED_IN event
+        const { user, accessToken } = response.data.data;
+        // The backend uses 'primary_role', but the frontend expects 'role'
+        const mappedUser = { ...user, role: user.primary_role || user.role };
+        setAuth(mappedUser, accessToken);
+        
+        // Redirect to dashboard router (will handle role-based redirection)
+        navigate('/dashboard');
       }
     } catch (err: any) {
       console.error('AUTH ERROR:', err);
-      setErrorMsg(err.message || 'Authentication failed.');
-      setIsLoading(false);
+      // Extract backend error message if available
+      const message = err.response?.data?.message || err.response?.data?.errors?.[0] || err.message || 'Authentication failed.';
+      setErrorMsg(message);
     } finally {
-      // We don't set setIsLoading(false) here because if login was successful, 
-      // the App.tsx will navigate away. If we reset it too fast, 
-      // the user might click twice.
-      // But we MUST reset if there is an error (handled in catch).
+      setIsLoading(false);
     }
   };
 
@@ -106,7 +94,7 @@ export default function AuthPage() {
             <div className="bg-primary text-white p-2 rounded-xl">
               <GraduationCap size={24} />
             </div>
-            <span className="text-xl font-bold">Gnan-AI Connect</span>
+            <span className="text-xl font-bold">AlumniConnect</span>
           </div>
           <div className="mt-auto mb-auto max-w-lg">
             <h1 className="text-5xl font-bold leading-tight mb-6">
@@ -127,7 +115,7 @@ export default function AuthPage() {
 
           {!isLogin && (
             <div className="flex gap-2 mb-8 p-1 bg-[#15171c] rounded-xl border border-white/5">
-              {['student', 'alumni'].map((r) => (
+              {['alumni', 'recruiter', 'donor'].map((r) => (
                 <button 
                   key={r} type="button" onClick={() => setRole(r)}
                   className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition-all ${role === r ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-white/5'}`}
@@ -191,7 +179,7 @@ export default function AuthPage() {
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Verifying...
+                  Processing...
                 </>
               ) : (
                 <>

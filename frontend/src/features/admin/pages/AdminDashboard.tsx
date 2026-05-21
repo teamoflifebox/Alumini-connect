@@ -2,32 +2,27 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Briefcase, GraduationCap, Settings, LogOut, Shield, BarChart2, Bell, ChevronDown, Trash2, Eye, RefreshCw } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../../../hooks/useAuth';
+import { api } from '../../../api/client';
 
 interface Profile {
   id: string;
-  first_name: string;
-  last_name: string;
+  name: string;
+  email: string;
   role: string;
+  is_verified: boolean;
+  is_approved: boolean;
   created_at: string;
-  onboarding_completed: boolean;
 }
 
-export default function AdminPage() {
+export default function AdminDashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, students: 0, alumni: 0, recruiters: 0 });
   const [showSignOutModal, setShowSignOutModal] = useState(false);
-
-  // Role-based guard — only 'admin' can enter
-  useEffect(() => {
-    if (!user) { navigate('/login'); return; }
-    if (user.role !== 'admin') { navigate('/dashboard'); return; }
-  }, [user]);
 
   useEffect(() => {
     fetchProfiles();
@@ -35,33 +30,49 @@ export default function AdminPage() {
 
   const fetchProfiles = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase.rpc('get_all_profiles');
-
-    if (error) {
-      console.error('Admin fetch error:', error.message);
-    }
-
-    if (!error && data) {
-      setProfiles(data);
+    try {
+      const response = await api.get('/user-management/users');
+      const users = response.data.data.users;
+      setProfiles(users);
       setStats({
-        total: data.length,
-        students: data.filter((p: Profile) => p.role === 'student').length,
-        alumni: data.filter((p: Profile) => p.role === 'alumni').length,
-        recruiters: data.filter((p: Profile) => p.role === 'recruiter').length,
+        total: users.length,
+        students: users.filter((u: any) => u.role === 'student').length,
+        alumni: users.filter((u: any) => u.role === 'alumni').length,
+        recruiters: users.filter((u: any) => u.role === 'recruiter').length,
       });
+    } catch (error) {
+      console.error('Admin fetch error:', error);
     }
     setIsLoading(false);
   };
 
   const deleteUser = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
-    await supabase.from('profiles').delete().eq('id', id);
-    setProfiles(prev => prev.filter(p => p.id !== id));
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await api.delete(`/user-management/users/${id}`);
+      setProfiles(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      alert('Failed to delete user');
+    }
   };
 
   const updateRole = async (id: string, newRole: string) => {
-    await supabase.from('profiles').update({ role: newRole }).eq('id', id);
-    setProfiles(prev => prev.map(p => p.id === id ? { ...p, role: newRole } : p));
+    try {
+      await api.patch(`/user-management/users/${id}/role`, { role: newRole });
+      setProfiles(prev => prev.map(p => p.id === id ? { ...p, role: newRole } : p));
+    } catch (err) {
+      alert('Failed to update role');
+    }
+  };
+
+  const verifyUser = async (id: string, isApproved: boolean) => {
+    try {
+      await api.patch('/user-management/alumni/verify', { user_id: id, is_verified: isApproved }); // The backend payload expects is_verified key but we mapped it to is_approved in SQL
+      setProfiles(prev => prev.map(p => p.id === id ? { ...p, is_approved: isApproved } : p));
+    } catch (error) {
+      console.error('Verify error:', error);
+      alert('Failed to update approval status');
+    }
   };
 
   const navItems = [
@@ -91,7 +102,7 @@ export default function AdminPage() {
           </div>
           <div>
             <p className="font-bold text-sm text-white">Admin Console</p>
-            <p className="text-xs text-muted-foreground">Gnan-AI Platform</p>
+            <p className="text-xs text-muted-foreground">AlumniConnect Platform</p>
           </div>
         </div>
 
@@ -113,12 +124,6 @@ export default function AdminPage() {
         </nav>
 
         <div className="pt-4 border-t border-white/10 space-y-2">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="w-full flex items-center gap-3 py-2 px-3 rounded-lg text-sm text-muted-foreground hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <BarChart2 size={16} /> Back to Dashboard
-          </button>
           <button
             onClick={() => setShowSignOutModal(true)}
             className="w-full flex items-center gap-3 py-2 px-3 rounded-lg text-sm text-muted-foreground hover:text-red-400 transition-colors"
@@ -142,9 +147,9 @@ export default function AdminPage() {
             </button>
             <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
               <div className="w-6 h-6 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center text-xs font-bold text-red-400">
-                {user?.firstName?.[0]?.toUpperCase()}
+                {user?.name?.[0]?.toUpperCase()}
               </div>
-              <span className="text-sm font-medium text-white">{user?.firstName}</span>
+              <span className="text-sm font-medium text-white">{user?.name}</span>
               <span className="text-xs text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">ADMIN</span>
             </div>
           </div>
@@ -197,7 +202,8 @@ export default function AdminPage() {
                       <th className="text-left px-6 py-4 text-muted-foreground font-medium">User</th>
                       <th className="text-left px-6 py-4 text-muted-foreground font-medium">Role</th>
                       <th className="text-left px-6 py-4 text-muted-foreground font-medium">Joined</th>
-                      <th className="text-left px-6 py-4 text-muted-foreground font-medium">Onboarded</th>
+                      <th className="text-left px-6 py-4 text-muted-foreground font-medium">Email Status</th>
+                      <th className="text-left px-6 py-4 text-muted-foreground font-medium">Admin Approval</th>
                       <th className="text-right px-6 py-4 text-muted-foreground font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -211,9 +217,12 @@ export default function AdminPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary uppercase">
-                              {profile.first_name?.[0] || '?'}
+                              {profile.name?.[0] || '?'}
                             </div>
-                            <span className="font-medium text-white">{profile.first_name} {profile.last_name}</span>
+                            <div className="flex flex-col">
+                               <span className="font-medium text-white">{profile.name}</span>
+                               <span className="text-xs text-muted-foreground">{profile.email}</span>
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -231,14 +240,34 @@ export default function AdminPage() {
                           {new Date(profile.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-xs font-bold px-2 py-1 rounded border ${profile.onboarding_completed ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-muted-foreground bg-white/5 border-white/10'}`}>
-                            {profile.onboarding_completed ? 'Done' : 'Pending'}
+                          <span className={`text-xs font-bold px-2 py-1 rounded border ${profile.is_verified ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20'}`}>
+                            {profile.is_verified ? 'Verified' : 'Unverified'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-xs font-bold px-2 py-1 rounded border ${profile.is_approved ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20'}`}>
+                            {profile.is_approved ? 'Approved' : 'Pending'}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button onClick={() => deleteUser(profile.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors">
-                            <Trash2 size={14} />
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                             {!profile.is_approved ? (
+                                profile.is_verified ? (
+                                  <button onClick={() => verifyUser(profile.id, true)} className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">
+                                    Approve
+                                  </button>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground italic px-2">Awaiting Email</span>
+                                )
+                             ) : (
+                                <button onClick={() => verifyUser(profile.id, false)} className="px-3 py-1.5 rounded-lg text-xs font-bold text-muted-foreground hover:text-white hover:bg-white/5 transition-colors">
+                                  Revoke
+                                </button>
+                             )}
+                             <button onClick={() => deleteUser(profile.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                               <Trash2 size={14} />
+                             </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -299,7 +328,7 @@ export default function AdminPage() {
             <p className="text-muted-foreground text-sm text-center mb-7">You'll be returned to the login page.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowSignOutModal(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors">Cancel</button>
-              <button onClick={() => { logout(); navigate('/'); supabase.auth.signOut(); }} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors">Sign Out</button>
+              <button onClick={() => { logout(); navigate('/login'); }} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors">Sign Out</button>
             </div>
           </motion.div>
         </div>

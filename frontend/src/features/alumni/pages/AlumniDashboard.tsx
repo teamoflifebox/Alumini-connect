@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -6,8 +6,7 @@ import {
   Users, TrendingUp, Award, BookOpen, Edit3, Plus,
   ChevronRight, X, Building, MapPin, RefreshCw, Link2
 } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface JobPost {
   id: number;
@@ -30,19 +29,20 @@ interface MentorshipRequest {
 
 export default function AlumniDashboard() {
   const navigate = useNavigate();
-  const { user, logout, login, isAuthenticated } = useAuthStore();
+  const { user, logout } = useAuth();
+  
   const [activeTab, setActiveTab] = useState('overview');
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [myJobs, setMyJobs] = useState<JobPost[]>([]);
   const [mentorRequests, setMentorRequests] = useState<MentorshipRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl || null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Profile state
   const [profile, setProfile] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ')[1] || '',
     headline: '',
     bio: '',
     company: '',
@@ -63,81 +63,20 @@ export default function AlumniDashboard() {
   // Stats
   const [stats, setStats] = useState({ jobsPosted: 0, menteeCount: 0, profileViews: 0 });
 
-  useEffect(() => {
-    if (!isAuthenticated || !user) { navigate('/login'); return; }
-    if (user.role !== 'alumni') { navigate('/dashboard'); return; }
-    fetchData();
-  }, [isAuthenticated, user]);
-
   const fetchData = async () => {
     setIsLoading(true);
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    if (!userId) return;
-
-    // Fetch profile
-    const { data: profileData } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (profileData) {
-      setProfile({
-        firstName: profileData.first_name || '',
-        lastName: profileData.last_name || '',
-        headline: profileData.headline || '',
-        bio: profileData.bio || '',
-        company: profileData.industry || '',
-        location: profileData.location || '',
-        graduation_year: profileData.graduation_year?.toString() || '',
-        degree: profileData.degree || '',
-        major: profileData.major || '',
-        linkedin_url: profileData.linkedin_url || '',
-        github_url: profileData.github_url || '',
-      });
-      if (profileData.avatar_url) setAvatarUrl(profileData.avatar_url);
-    }
-
-    // Fetch jobs posted
-    const { data: jobsData } = await supabase.from('jobs').select('*').eq('posted_by', userId).order('created_at', { ascending: false });
-    if (jobsData) {
-      setMyJobs(jobsData);
-      setStats(prev => ({ ...prev, jobsPosted: jobsData.length }));
-    }
-
-    // Fetch mentorship requests
-    const { data: mentorData } = await supabase.from('mentorships').select('*').eq('mentor_id', userId);
-    if (mentorData) {
-      setMentorRequests(mentorData);
-      setStats(prev => ({ ...prev, menteeCount: mentorData.filter((m: any) => m.status === 'active').length }));
-    }
-
-    setIsLoading(false);
+    // Mock fetching data
+    setTimeout(() => {
+        setIsLoading(false);
+    }, 500);
   };
 
   const handleSaveProfile = async () => {
     setSaveStatus('Saving...');
-    const { data: { user: supaUser } } = await supabase.auth.getUser();
-    if (!supaUser) return;
-
-    const { error } = await supabase.from('profiles').update({
-      first_name: profile.firstName,
-      last_name: profile.lastName,
-      headline: profile.headline,
-      bio: profile.bio,
-      industry: profile.company,
-      location: profile.location,
-      graduation_year: profile.graduation_year ? parseInt(profile.graduation_year) : null,
-      degree: profile.degree,
-      major: profile.major,
-      linkedin_url: profile.linkedin_url,
-      github_url: profile.github_url,
-      updated_at: new Date().toISOString(),
-    }).eq('id', supaUser.id);
-
-    if (!error) {
-      login({ ...user!, firstName: profile.firstName, lastName: profile.lastName });
-      setSaveStatus('Saved! ✓');
-      setTimeout(() => setSaveStatus('Save Profile'), 2000);
-    } else {
-      setSaveStatus('Error saving');
-      setTimeout(() => setSaveStatus('Save Profile'), 2000);
-    }
+    setTimeout(() => {
+        setSaveStatus('Saved! ✓');
+        setTimeout(() => setSaveStatus('Save Profile'), 2000);
+    }, 1000);
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,37 +84,29 @@ export default function AlumniDashboard() {
     if (!file) return;
     const localUrl = URL.createObjectURL(file);
     setAvatarUrl(localUrl);
-    login({ ...user!, avatarUrl: localUrl });
   };
 
   const handlePostJob = async () => {
     if (!jobForm.title || !jobForm.company || !jobForm.description) return;
     setPostingJob(true);
-    const { data: { user: supaUser } } = await supabase.auth.getUser();
-    if (!supaUser) return;
-
-    const { data, error } = await supabase.from('jobs').insert({
-      posted_by: supaUser.id,
-      title: jobForm.title,
-      company: jobForm.company,
-      location: jobForm.location,
-      type: jobForm.type,
-      description: jobForm.description,
-      salary_range: jobForm.salary_range,
-      is_active: true,
-    }).select().single();
-
-    if (!error && data) {
-      setMyJobs(prev => [data, ...prev]);
-      setStats(prev => ({ ...prev, jobsPosted: prev.jobsPosted + 1 }));
-      setJobForm({ title: '', company: '', location: '', type: 'Full-time', description: '', salary_range: '' });
-      setShowJobForm(false);
-    }
-    setPostingJob(false);
+    setTimeout(() => {
+        setMyJobs(prev => [{
+            id: Date.now(),
+            title: jobForm.title,
+            company: jobForm.company,
+            location: jobForm.location,
+            type: jobForm.type,
+            description: jobForm.description,
+            created_at: new Date().toISOString()
+        }, ...prev]);
+        setStats(prev => ({ ...prev, jobsPosted: prev.jobsPosted + 1 }));
+        setJobForm({ title: '', company: '', location: '', type: 'Full-time', description: '', salary_range: '' });
+        setShowJobForm(false);
+        setPostingJob(false);
+    }, 1000);
   };
 
   const deleteJob = async (id: number) => {
-    await supabase.from('jobs').delete().eq('id', id);
     setMyJobs(prev => prev.filter(j => j.id !== id));
     setStats(prev => ({ ...prev, jobsPosted: prev.jobsPosted - 1 }));
   };
@@ -197,11 +128,11 @@ export default function AlumniDashboard() {
             className="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/30 bg-emerald-500/10 cursor-pointer flex items-center justify-center text-lg font-bold text-emerald-400"
             onClick={() => fileInputRef.current?.click()}
           >
-            {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" /> : (user?.firstName?.[0]?.toUpperCase() || 'A')}
+            {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" /> : (user?.name?.[0]?.toUpperCase() || 'A')}
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           <div>
-            <p className="font-bold text-sm text-white">{user?.firstName} {user?.lastName}</p>
+            <p className="font-bold text-sm text-white">{user?.name}</p>
             <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Alumni</span>
           </div>
         </div>
@@ -254,7 +185,7 @@ export default function AlumniDashboard() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-emerald-400 text-sm font-semibold mb-1">👋 Welcome back</p>
-                    <h2 className="text-3xl font-bold text-white mb-2">{user?.firstName} {user?.lastName}</h2>
+                    <h2 className="text-3xl font-bold text-white mb-2">{user?.name}</h2>
                     <p className="text-muted-foreground">{profile.headline || 'Add your headline in your profile'}</p>
                     {profile.company && (
                       <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
@@ -321,7 +252,7 @@ export default function AlumniDashboard() {
               <div className="flex items-center gap-6 p-6 border border-white/5 rounded-2xl bg-[#15171c]">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/30 cursor-pointer bg-emerald-500/10 flex items-center justify-center text-3xl font-bold text-emerald-400"
                   onClick={() => fileInputRef.current?.click()}>
-                  {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" /> : (user?.firstName?.[0]?.toUpperCase())}
+                  {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" /> : (user?.name?.[0]?.toUpperCase())}
                 </div>
                 <div>
                   <h3 className="font-bold text-white text-lg">{profile.firstName} {profile.lastName}</h3>
@@ -439,7 +370,7 @@ export default function AlumniDashboard() {
               ) : (
                 <div className="space-y-4">
                   {myJobs.map(job => (
-                    <div key={job.id} className="p-5 border border-white/5 rounded-2xl bg-[#15171c] hover:border-white/10 transition-all flex items-start justify-between gap-4">
+                     <div key={job.id} className="p-5 border border-white/5 rounded-2xl bg-[#15171c] hover:border-white/10 transition-all flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 flex-wrap mb-1">
                           <h4 className="font-bold text-white">{job.title}</h4>
@@ -543,7 +474,7 @@ export default function AlumniDashboard() {
               <p className="text-muted-foreground text-sm text-center mb-7">You'll need to sign in again to access your dashboard.</p>
               <div className="flex gap-3">
                 <button onClick={() => setShowSignOutModal(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors">Cancel</button>
-                <button onClick={() => { logout(); navigate('/'); supabase.auth.signOut(); }} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors">Sign Out</button>
+                <button onClick={() => { logout(); navigate('/login'); }} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors">Sign Out</button>
               </div>
             </motion.div>
           </motion.div>

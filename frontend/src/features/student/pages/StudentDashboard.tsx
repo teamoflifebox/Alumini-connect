@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, LayoutDashboard, Settings, UserCircle, Briefcase, GraduationCap, ChevronRight, Check } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../../../hooks/useAuth';
 
-export default function Dashboard() {
+export default function StudentDashboard() {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated, login } = useAuthStore();
-  const [showOnboarding, setShowOnboarding] = useState(!user?.onboardingCompleted);
+  const { user, logout, setAuth } = useAuth();
+  
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [step, setStep] = useState(1);
   const [goals, setGoals] = useState<string[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
@@ -17,9 +17,8 @@ export default function Dashboard() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [mentors, setMentors] = useState<any[]>([]);
   const [scholarships, setScholarships] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl || null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [settingsState, setSettingsState] = useState({
     emailNotifs: true,
     publicProfile: false,
@@ -32,8 +31,8 @@ export default function Dashboard() {
   };
   
   const [profileData, setProfileData] = useState({ 
-    firstName: user?.firstName || '', 
-    lastName: user?.lastName || '', 
+    firstName: user?.name?.split(' ')[0] || '', 
+    lastName: user?.name?.split(' ')[1] || '', 
     bio: '' 
   });
   const [saveStatus, setSaveStatus] = useState('Save Profile');
@@ -41,21 +40,11 @@ export default function Dashboard() {
   const handleProfileSave = () => {
     setSaveStatus('Saving...');
     setTimeout(() => {
-      login({ ...user!, firstName: profileData.firstName, lastName: profileData.lastName });
+      // Mock save
       setSaveStatus('Saved!');
       setTimeout(() => setSaveStatus('Save Profile'), 2000);
     }, 800);
   };
-
-  useEffect(() => {
-    if (!isAuthenticated || !user) {
-      navigate('/login');
-      return;
-    }
-    // Redirect non-students to their correct dashboard
-    if (user.role === 'alumni') { navigate('/alumni-dashboard'); return; }
-    if (user.role === 'admin') { navigate('/admin'); return; }
-  }, [isAuthenticated, user, navigate]);
 
   const toggleSelection = (item: string, list: string[], setList: (l: string[]) => void) => {
     if (list.includes(item)) setList(list.filter(i => i !== item));
@@ -67,19 +56,15 @@ export default function Dashboard() {
       setStep(step + 1);
     } else {
       setShowOnboarding(false);
-      login({ ...user!, onboardingCompleted: true });
     }
   };
 
   const handleSkipOnboarding = () => {
     setShowOnboarding(false);
-    login({ ...user!, onboardingCompleted: true });
   };
 
-  if (!isAuthenticated || !user) return null; // Prevent tearing while redirecting
-
   return (
-    <div className="min-h-screen bg-background text-foreground flex relative">
+    <div className="min-h-screen bg-[#09090b] text-foreground flex relative">
       
       {/* ONBOARDING OVERLAY */}
       <AnimatePresence>
@@ -176,7 +161,7 @@ export default function Dashboard() {
           <div className="bg-primary text-white p-1.5 rounded-lg">
             <GraduationCap size={20} />
           </div>
-          <span className="font-bold tracking-tight text-lg">Gnan-AI</span>
+          <span className="font-bold tracking-tight text-lg text-white">AlumniConnect</span>
         </div>
 
         <nav className="space-y-4 flex-1">
@@ -226,7 +211,7 @@ export default function Dashboard() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => { logout(); navigate('/'); supabase.auth.signOut(); }}
+                  onClick={() => { logout(); navigate('/login'); }}
                   className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors"
                 >
                   Sign Out
@@ -243,11 +228,11 @@ export default function Dashboard() {
         <header className="h-20 border-b border-white/10 flex items-center justify-between px-8 bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-bold text-white">Dashboard Overview</h2>
-            <span className="hidden md:flex px-3 py-1 bg-primary/20 text-primary text-xs font-bold rounded-full uppercase">{user?.role || 'Guest'} VIEW</span>
+            <span className="hidden md:flex px-3 py-1 bg-primary/20 text-primary text-xs font-bold rounded-full uppercase">{user?.role || 'Student'} VIEW</span>
           </div>
           <div className="flex items-center gap-6">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-brand-400 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(255,98,10,0.4)] cursor-pointer uppercase overflow-hidden">
-              {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}</>}
+              {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{profileData.firstName?.[0] || 'U'}</>}
             </div>
           </div>
         </header>
@@ -265,12 +250,12 @@ export default function Dashboard() {
                   <div className="absolute right-0 top-0 w-[500px] h-full bg-primary/10 blur-[100px] pointer-events-none" />
                   <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                      <h3 className="text-3xl font-bold mb-2 text-white capitalize">Good afternoon, {user?.firstName || 'User'} 👋</h3>
+                      <h3 className="text-3xl font-bold mb-2 text-white capitalize">Good afternoon, {profileData.firstName || 'Student'} 👋</h3>
                       <p className="text-muted-foreground text-lg">
-                        {user?.lastName ? "You have 2 new mentorship matches and 5 recommended jobs based on your skills." : "Your dashboard is standing by. Optimize your profile to trigger matches."}
+                        {profileData.lastName ? "You have 2 new mentorship matches and 5 recommended jobs based on your skills." : "Your dashboard is standing by. Optimize your profile to trigger matches."}
                       </p>
                     </div>
-                    {user?.lastName ? (
+                    {profileData.lastName ? (
                       <button onClick={() => setActiveTab('opportunities')} className="bg-primary hover:bg-brand-600 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-[0_0_20px_rgba(255,98,10,0.3)] whitespace-nowrap">
                         View Matches
                       </button>
@@ -282,7 +267,7 @@ export default function Dashboard() {
                   </div>
                </motion.div>
                
-               {/* High Level Metrics - Awaiting API */}
+               {/* High Level Metrics */}
                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   {[
                     { title: 'Profile Views', value: '—', trend: 'Awaiting Data', color: 'from-blue-500/20 to-transparent', text: 'text-muted-foreground' },
@@ -374,7 +359,7 @@ export default function Dashboard() {
                  <h3 className="text-3xl font-bold text-white mb-8">My Profile</h3>
                  <div className="flex items-center gap-6 mb-8">
                    <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center text-primary font-bold text-3xl uppercase overflow-hidden">
-                     {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{profileData.firstName?.[0] || 'U'}{profileData.lastName?.[0] || ''}</>}
+                     {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{profileData.firstName?.[0] || 'U'}</>}
                    </div>
                    
                    <input 
@@ -387,11 +372,10 @@ export default function Dashboard() {
                        if (file) {
                          const objUrl = URL.createObjectURL(file);
                          setAvatarUrl(objUrl);
-                         login({ ...user!, avatarUrl: objUrl });
                        }
                      }} 
                    />
-                   <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm hover:bg-white/10 transition-colors">
+                   <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm hover:bg-white/10 transition-colors text-white">
                      Upload Avatar
                    </button>
                  </div>
@@ -557,7 +541,7 @@ export default function Dashboard() {
                    </div>
                    <div onClick={() => {
                      toggleSetting('twoFactor');
-                     if (!settingsState.twoFactor) alert("2FA Setup Initiated: In a production sequence, this trigger will deploy a physical QR generation pipeline connecting to Google Authenticator.");
+                     if (!settingsState.twoFactor) alert("2FA Setup Initiated");
                    }} className={`w-14 h-7 rounded-full relative cursor-pointer transition-colors ${settingsState.twoFactor ? 'bg-primary' : 'bg-white/10'}`}>
                      <motion.div layout transition={{ type: 'spring', stiffness: 700, damping: 30 }} className={`w-5 h-5 bg-white rounded-full absolute top-1 ${settingsState.twoFactor ? 'right-1' : 'left-1'}`} />
                    </div>
@@ -569,7 +553,7 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground max-w-sm">
                     Exporting data compiles your complete operational history and connected endpoints as mandated by GDPR infrastructure regulations.
                   </p>
-                  <button onClick={() => alert("GDPR Extract Triggered: Assembling local JSON container bundle...")} className="bg-white/5 hover:bg-white/10 text-white font-bold py-3 px-8 rounded-xl transition-all border border-white/5 w-full md:w-auto">
+                  <button onClick={() => alert("GDPR Extract Triggered")} className="bg-white/5 hover:bg-white/10 text-white font-bold py-3 px-8 rounded-xl transition-all border border-white/5 w-full md:w-auto">
                     Export Security Data
                   </button>
                </div>

@@ -31,7 +31,6 @@ const sendAuthResponse = (
     data: {
       user: result.user,
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
     },
   });
 };
@@ -147,7 +146,7 @@ export class AuthController {
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const refreshToken =
-        req.body.refreshToken || (req as Request & { cookies?: Record<string, string> }).cookies?.[REFRESH_COOKIE];
+        req.body?.refreshToken || (req as Request & { cookies?: Record<string, string> }).cookies?.[REFRESH_COOKIE];
 
       if (!refreshToken) {
         throw new AppError('Refresh token is required', 400);
