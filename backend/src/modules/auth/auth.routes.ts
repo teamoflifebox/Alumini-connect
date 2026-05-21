@@ -11,6 +11,7 @@ import {
   linkedinAuthSchema,
   loginSchema,
   resetPasswordSchema,
+  registerSchema,
 } from './auth.schema';
 
 const router = Router();
@@ -53,11 +54,11 @@ router.post(
   asyncHandler(authController.alumniRegister.bind(authController))
 );
 
-// Universal registration endpoint (defaults to alumni)
+// Universal registration endpoint
 router.post(
   '/register',
   registerLimiter,
-  validate(alumniRegisterSchema),
+  validate(registerSchema),
   asyncHandler(authController.register.bind(authController))
 );
 
