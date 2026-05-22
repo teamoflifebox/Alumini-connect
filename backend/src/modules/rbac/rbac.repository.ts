@@ -221,7 +221,7 @@ export class RBACRepository {
   
   async getPendingUsers(): Promise<any[]> {
     const result = await pool.query(
-      `SELECT id, name, email, role, created_at, is_verified
+      `SELECT id, name, email, primary_role as role, created_at, is_verified
        FROM users
        WHERE approval_status = 'pending'
        ORDER BY created_at DESC`

@@ -123,7 +123,7 @@ export class UserManagementService {
     }
 
     // Prevent deleting admin accounts
-    if (user.role === 'admin') {
+    if (user.primary_role === 'admin' || user.role === 'admin') {
       throw new AppError('Cannot delete admin accounts', 403);
     }
 
@@ -131,17 +131,15 @@ export class UserManagementService {
     return { message: 'User deleted successfully' };
   }
 
-  /**
-   * Update user role (admin only)
-   */
   async updateUserRole(userId: string, newRole: UserRole) {
     const user = await userManagementRepository.findUserById(userId);
     if (!user) {
       throw new AppError('User not found', 404);
     }
 
-    // Prevent changing admin role
-    if (user.role === 'admin' || newRole === 'admin') {
+    const currentRole = user.primary_role || user.role;
+
+    if (currentRole === 'admin' || newRole === 'admin') {
       throw new AppError('Cannot modify admin role', 403);
     }
 
@@ -150,7 +148,7 @@ export class UserManagementService {
       id: String(updatedUser.id),
       name: updatedUser.name || '',
       email: updatedUser.email,
-      role: updatedUser.role,
+      role: updatedUser.primary_role || updatedUser.role,
       is_verified: updatedUser.is_verified,
       updated_at: updatedUser.updated_at,
     };

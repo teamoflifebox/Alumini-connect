@@ -1,0 +1,507 @@
+{
+  "info": {
+    "name": "Role-Based Profile Service API",
+    "description": "Complete API collection for testing the Role-Based Profile Service with examples for all 5 user roles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    },
+    {
+      "key": "studentUserId",
+      "value": "550e8400-e29b-41d4-a716-446655440001",
+      "type": "string"
+    },
+    {
+      "key": "alumniUserId",
+      "value": "550e8400-e29b-41d4-a716-446655440002",
+      "type": "string"
+    },
+    {
+      "key": "recruiterUserId",
+      "value": "550e8400-e29b-41d4-a716-446655440003",
+      "type": "string"
+    },
+    {
+      "key": "adminUserId",
+      "value": "550e8400-e29b-41d4-a716-446655440004",
+      "type": "string"
+    },
+    {
+      "key": "donorUserId",
+      "value": "550e8400-e29b-41d4-a716-446655440005",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Profiles",
+      "item": [
+        {
+          "name": "Create Student Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{studentUserId}}\",\n  \"role\": \"student\",\n  \"commonFields\": {\n    \"name\": \"Alex Chen\",\n    \"email\": \"alex.chen@university.edu\",\n    \"profilePhoto\": \"https://example.com/alex.jpg\",\n    \"bio\": \"Computer Science student passionate about full-stack development\",\n    \"location\": \"Boston, MA\"\n  },\n  \"roleSpecificData\": {\n    \"skills\": [\"JavaScript\", \"TypeScript\", \"React\", \"Node.js\", \"Python\"],\n    \"education\": [\n      {\n        \"institution\": \"Massachusetts Institute of Technology\",\n        \"degree\": \"Bachelor of Science\",\n        \"fieldOfStudy\": \"Computer Science\",\n        \"startYear\": 2021,\n        \"endYear\": 2025,\n        \"grade\": \"3.9 GPA\"\n      }\n    ],\n    \"projects\": [\n      {\n        \"title\": \"E-Commerce Platform\",\n        \"description\": \"Built a full-stack e-commerce platform with React and Node.js\",\n        \"technologies\": [\"React\", \"Node.js\", \"PostgreSQL\"],\n        \"link\": \"https://github.com/alexchen/ecommerce\",\n        \"startDate\": \"2023-09\",\n        \"endDate\": \"2024-01\"\n      }\n    ],\n    \"interests\": [\"Web Development\", \"Machine Learning\", \"Open Source\"],\n    \"internshipAvailable\": true,\n    \"internshipExperience\": [\n      {\n        \"company\": \"TechStart Inc.\",\n        \"role\": \"Software Engineering Intern\",\n        \"duration\": \"3 months\",\n        \"description\": \"Developed REST APIs using Node.js and Express\"\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles"]
+            }
+          }
+        },
+        {
+          "name": "Create Alumni Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{alumniUserId}}\",\n  \"role\": \"alumni\",\n  \"commonFields\": {\n    \"name\": \"Michael Rodriguez\",\n    \"email\": \"michael.rodriguez@gmail.com\",\n    \"profilePhoto\": \"https://example.com/michael.jpg\",\n    \"bio\": \"Senior Software Engineer at Google with 8 years of experience\",\n    \"location\": \"Mountain View, CA\"\n  },\n  \"roleSpecificData\": {\n    \"skills\": [\"Java\", \"Go\", \"Kubernetes\", \"Microservices\", \"System Design\"],\n    \"workExperience\": [\n      {\n        \"company\": \"Google\",\n        \"designation\": \"Senior Software Engineer\",\n        \"startDate\": \"2020-06\",\n        \"description\": \"Leading backend infrastructure team for Google Cloud Platform\",\n        \"location\": \"Mountain View, CA\"\n      },\n      {\n        \"company\": \"Amazon Web Services\",\n        \"designation\": \"Software Development Engineer II\",\n        \"startDate\": \"2018-03\",\n        \"endDate\": \"2020-05\",\n        \"description\": \"Worked on AWS Lambda infrastructure\",\n        \"location\": \"Seattle, WA\"\n      }\n    ],\n    \"education\": [\n      {\n        \"institution\": \"Massachusetts Institute of Technology\",\n        \"degree\": \"Master of Science\",\n        \"fieldOfStudy\": \"Computer Science\",\n        \"startYear\": 2014,\n        \"endYear\": 2016,\n        \"grade\": \"4.0 GPA\"\n      }\n    ],\n    \"achievements\": [\n      {\n        \"title\": \"Google Cloud Innovator Award\",\n        \"description\": \"Recognized for exceptional contributions to GCP infrastructure\",\n        \"date\": \"2022-11\",\n        \"category\": \"Professional\"\n      }\n    ],\n    \"interests\": [\"Distributed Systems\", \"Cloud Computing\", \"Mentorship\"],\n    \"graduationYear\": 2016,\n    \"currentCompany\": \"Google\",\n    \"currentDesignation\": \"Senior Software Engineer\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles"]
+            }
+          }
+        },
+        {
+          "name": "Create Recruiter Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{recruiterUserId}}\",\n  \"role\": \"recruiter\",\n  \"commonFields\": {\n    \"name\": \"David Kim\",\n    \"email\": \"david.kim@techcorp.com\",\n    \"profilePhoto\": \"https://example.com/david.jpg\",\n    \"bio\": \"Senior Technical Recruiter with 7 years of experience\",\n    \"location\": \"Austin, TX\"\n  },\n  \"roleSpecificData\": {\n    \"companyName\": \"TechCorp Solutions\",\n    \"designation\": \"Senior Technical Recruiter\",\n    \"hiringRoles\": [\n      \"Software Engineer\",\n      \"DevOps Engineer\",\n      \"Data Scientist\",\n      \"Product Manager\"\n    ],\n    \"industry\": \"Technology\",\n    \"companyDetails\": {\n      \"website\": \"https://techcorp.com\",\n      \"size\": \"1000-5000 employees\",\n      \"description\": \"Leading enterprise software company\",\n      \"headquarters\": \"Austin, TX\"\n    },\n    \"postedJobs\": [],\n    \"yearsInRecruitment\": 7\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles"]
+            }
+          }
+        },
+        {
+          "name": "Create Admin Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{adminUserId}}\",\n  \"role\": \"admin\",\n  \"commonFields\": {\n    \"name\": \"Robert Anderson\",\n    \"email\": \"robert.anderson@alumniconnect.com\",\n    \"profilePhoto\": \"https://example.com/robert.jpg\",\n    \"bio\": \"Platform Administrator for Alumni Connect\",\n    \"location\": \"Remote\"\n  },\n  \"roleSpecificData\": {\n    \"department\": \"Platform Operations\",\n    \"permissions\": [\n      \"user_management\",\n      \"content_moderation\",\n      \"system_configuration\",\n      \"analytics_access\"\n    ],\n    \"systemAccessLevel\": \"full\",\n    \"managedModules\": [\"user-management\", \"profiles\", \"jobs\", \"events\"],\n    \"adminNotes\": \"Primary administrator for platform operations\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles"]
+            }
+          }
+        },
+        {
+          "name": "Create Donor Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{donorUserId}}\",\n  \"role\": \"donor\",\n  \"commonFields\": {\n    \"name\": \"William Thompson\",\n    \"email\": \"william.thompson@email.com\",\n    \"profilePhoto\": \"https://example.com/william.jpg\",\n    \"bio\": \"Proud alumnus supporting educational initiatives\",\n    \"location\": \"Boston, MA\"\n  },\n  \"roleSpecificData\": {\n    \"organizationName\": null,\n    \"contributionHistory\": [\n      {\n        \"amount\": 50000,\n        \"date\": \"2023-12-15\",\n        \"campaign\": \"Annual Scholarship Fund\",\n        \"purpose\": \"Student Scholarships\",\n        \"transactionId\": \"TXN-2023-12-001\"\n      }\n    ],\n    \"interests\": [\"Education\", \"Student Scholarships\", \"STEM Programs\"],\n    \"donationType\": \"individual\",\n    \"engagementActivity\": [\"Attended Annual Gala 2023\"],\n    \"totalContributed\": 50000,\n    \"preferredCauses\": [\"Student Scholarships\", \"STEM Education\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Profiles",
+      "item": [
+        {
+          "name": "Get Profile by User ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Profiles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Profiles by Role (Alumni)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/role/alumni?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "role", "alumni"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check Profile Exists",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}/exists",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}", "exists"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search & Statistics",
+      "item": [
+        {
+          "name": "Search Profiles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/search?q=alex&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "alex"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Profiles by Role",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/search?q=engineer&role=alumni",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "engineer"
+                },
+                {
+                  "key": "role",
+                  "value": "alumni"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Profile Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Profiles",
+      "item": [
+        {
+          "name": "Update Student Profile - Add Skill",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleSpecificData\": {\n    \"skills\": [\"JavaScript\", \"TypeScript\", \"React\", \"Node.js\", \"Python\", \"Docker\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Common Fields - Bio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commonFields\": {\n    \"bio\": \"Updated bio: CS student specializing in Machine Learning and Cloud Computing\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity Tracking",
+      "item": [
+        {
+          "name": "Add Activity - Job Applied",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"job_applied\",\n  \"metadata\": {\n    \"jobId\": \"job-uuid-123\",\n    \"company\": \"Google\",\n    \"position\": \"Software Engineer Intern\",\n    \"appliedDate\": \"2024-01-15\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}/activity",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}", "activity"]
+            }
+          }
+        },
+        {
+          "name": "Add Activity - Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"login\",\n  \"metadata\": {\n    \"timestamp\": \"2024-01-15T10:30:00Z\",\n    \"ipAddress\": \"192.168.1.1\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}/activity",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}", "activity"]
+            }
+          }
+        },
+        {
+          "name": "Add Activity - Donation Made",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"donation_made\",\n  \"metadata\": {\n    \"amount\": 5000,\n    \"campaign\": \"Emergency Scholarship Fund\",\n    \"date\": \"2024-01-20\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{donorUserId}}/activity",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{donorUserId}}", "activity"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Profile",
+      "item": [
+        {
+          "name": "Delete Profile by User ID",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-profiles/user/{{studentUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "role-profiles", "user", "{{studentUserId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

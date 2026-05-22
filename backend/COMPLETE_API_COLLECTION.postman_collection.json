@@ -1,0 +1,815 @@
+{
+  "info": {
+    "name": "Alumni Connect - Complete API Collection",
+    "description": "Complete API collection for Alumni Connect platform including Authentication, User Management, Profiles, Jobs, and RBAC",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001/api",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "1.1 Universal Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                  "    pm.collectionVariables.set('userId', jsonData.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"yourPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password. System auto-detects user role."
+          }
+        },
+        {
+          "name": "1.2 Admin Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@alumniconnect.com\",\n  \"password\": \"AdminPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.3 Student Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@university.edu\",\n  \"password\": \"StudentPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/student/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "student", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.4 Alumni Registration",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@alumni.com\",\n  \"password\": \"SecurePass123!\",\n  \"confirmPassword\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/alumni/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "alumni", "register"]
+            }
+          }
+        },
+        {
+          "name": "1.5 Google OAuth Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"google_oauth_token_here\",\n  \"role\": \"alumni\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google"]
+            }
+          }
+        },
+        {
+          "name": "1.6 LinkedIn OAuth Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"linkedin_authorization_code\",\n  \"role\": \"alumni\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/linkedin",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "linkedin"]
+            }
+          }
+        },
+        {
+          "name": "1.7 Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "1.8 Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset_token_from_email\",\n  \"newPassword\": \"NewSecurePass123!\",\n  \"confirmPassword\": \"NewSecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "1.9 Send Email Verification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/send-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "send-verification"]
+            }
+          }
+        },
+        {
+          "name": "1.10 Verify Email",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email?token=verification_token_here",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "verification_token_here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.11 Refresh Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "1.12 Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Management (Admin)",
+      "item": [
+        {
+          "name": "2.1 Create Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@university.edu\",\n  \"password\": \"TempPass123!\",\n  \"batchYear\": 2024,\n  \"department\": \"Computer Science\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user-management/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "students"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"email\": \"admin2@alumniconnect.com\",\n  \"password\": \"AdminPass123!\",\n  \"department\": \"Operations\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user-management/admins",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "admins"]
+            }
+          }
+        },
+        {
+          "name": "2.3 Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user-management/users?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "john",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.4 Get Users by Role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user-management/users/role/student",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "users", "role", "student"]
+            }
+          }
+        },
+        {
+          "name": "2.5 Approve Alumni",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"alumni_user_uuid\",\n  \"isApproved\": true,\n  \"rejectionReason\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user-management/alumni/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "alumni", "verify"]
+            }
+          }
+        },
+        {
+          "name": "2.6 Reject Alumni",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"alumni_user_uuid\",\n  \"isApproved\": false,\n  \"rejectionReason\": \"Invalid credentials\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user-management/alumni/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "alumni", "verify"]
+            }
+          }
+        },
+        {
+          "name": "2.7 Update User Role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newRole\": \"alumni\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user-management/users/{{userId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "users", "{{userId}}", "role"]
+            }
+          }
+        },
+        {
+          "name": "2.8 Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user-management/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["user-management", "users", "{{userId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Profiles",
+      "item": [
+        {
+          "name": "3.1 Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_company\": \"Microsoft\",\n  \"designation\": \"Senior Software Engineer\",\n  \"skills\": [\"JavaScript\", \"TypeScript\", \"React\", \"Node.js\"],\n  \"domains\": [\"Web Development\", \"Cloud Computing\"],\n  \"is_mentor_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Role-Based Profiles",
+      "item": [
+        {
+          "name": "4.1 Create Student Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"role\": \"student\",\n  \"commonFields\": {\n    \"name\": \"Alex Chen\",\n    \"email\": \"alex@university.edu\",\n    \"profilePhoto\": \"https://example.com/photo.jpg\",\n    \"bio\": \"CS student passionate about AI\",\n    \"location\": \"Boston, MA\"\n  },\n  \"roleSpecificData\": {\n    \"skills\": [\"JavaScript\", \"Python\", \"React\"],\n    \"education\": [{\n      \"institution\": \"MIT\",\n      \"degree\": \"Bachelor of Science\",\n      \"fieldOfStudy\": \"Computer Science\",\n      \"startYear\": 2021,\n      \"endYear\": 2025,\n      \"grade\": \"3.9 GPA\"\n    }],\n    \"projects\": [],\n    \"interests\": [\"Web Development\"],\n    \"internshipAvailable\": false,\n    \"internshipExperience\": []\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles"]
+            }
+          }
+        },
+        {
+          "name": "4.2 Get Profile by User ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "user", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "4.3 Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commonFields\": {\n    \"bio\": \"Updated bio text\"\n  },\n  \"roleSpecificData\": {\n    \"skills\": [\"JavaScript\", \"TypeScript\", \"React\", \"Node.js\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "user", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "4.4 Search Profiles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/search?q=software&role=alumni&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "software"
+                },
+                {
+                  "key": "role",
+                  "value": "alumni"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.5 Get Profiles by Role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/role/alumni?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "role", "alumni"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.6 Add Activity Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"job_applied\",\n  \"metadata\": {\n    \"jobId\": \"job_uuid\",\n    \"company\": \"Google\",\n    \"position\": \"Software Engineer\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/user/{{userId}}/activity",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "user", "{{userId}}", "activity"]
+            }
+          }
+        },
+        {
+          "name": "4.7 Get Profile Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "stats"]
+            }
+          }
+        },
+        {
+          "name": "4.8 Check Profile Exists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/role-profiles/user/{{userId}}/exists",
+              "host": ["{{baseUrl}}"],
+              "path": ["role-profiles", "user", "{{userId}}", "exists"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Jobs",
+      "item": [
+        {
+          "name": "5.1 Get All Jobs (Public)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "software",
+                  "disabled": true
+                },
+                {
+                  "key": "location",
+                  "value": "remote",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.2 Create Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Software Engineer\",\n  \"company\": \"TechCorp Inc.\",\n  \"location\": \"San Francisco, CA\",\n  \"type\": \"Full-time\",\n  \"description\": \"We are seeking a talented Senior Software Engineer...\",\n  \"requirements\": [\n    \"5+ years of software development experience\",\n    \"Strong knowledge of JavaScript/TypeScript\",\n    \"Experience with React and Node.js\"\n  ],\n  \"salary_range\": \"$120k - $180k\",\n  \"application_url\": \"https://techcorp.com/careers/apply/123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. RBAC",
+      "item": [
+        {
+          "name": "6.1 Get My Capabilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rbac/capabilities/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["rbac", "capabilities", "me"]
+            }
+          }
+        },
+        {
+          "name": "6.2 Assign Capability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"capabilityGroup\": \"mentor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rbac/capabilities/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["rbac", "capabilities", "assign"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Health Checks",
+      "item": [
+        {
+          "name": "7.1 Server Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5001/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "7.2 API Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
