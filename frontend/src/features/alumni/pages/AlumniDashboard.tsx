@@ -5,8 +5,8 @@ import {
   LogOut, LayoutDashboard, Settings, UserCircle, Briefcase,
   Users, TrendingUp, Award, BookOpen, Edit3, Plus,
   ChevronRight, X, Building, MapPin, RefreshCw, Link2
-} from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
+import ProfileForm from '../../profiles/components/ProfileForm';
 
 interface JobPost {
   id: number;
@@ -247,75 +247,36 @@ export default function AlumniDashboard() {
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-              {/* Avatar */}
-              <div className="flex items-center gap-6 p-6 border border-white/5 rounded-2xl bg-[#15171c]">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/30 cursor-pointer bg-emerald-500/10 flex items-center justify-center text-3xl font-bold text-emerald-400"
-                  onClick={() => fileInputRef.current?.click()}>
-                  {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" /> : (user?.name?.[0]?.toUpperCase())}
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-lg">{profile.firstName} {profile.lastName}</h3>
-                  <p className="text-muted-foreground text-sm mb-3">{profile.headline || 'No headline set'}</p>
-                  <button onClick={() => fileInputRef.current?.click()}
-                    className="text-xs text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 rounded-lg hover:bg-emerald-500/20 transition-all">
-                    Change Photo
-                  </button>
-                </div>
-              </div>
-
-              {/* Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'First Name', key: 'firstName', placeholder: 'First name' },
-                  { label: 'Last Name', key: 'lastName', placeholder: 'Last name' },
-                  { label: 'Current Company', key: 'company', placeholder: 'e.g. Google' },
-                  { label: 'Location', key: 'location', placeholder: 'City, Country' },
-                  { label: 'Graduation Year', key: 'graduation_year', placeholder: 'e.g. 2020' },
-                  { label: 'Degree', key: 'degree', placeholder: 'e.g. B.Tech' },
-                  { label: 'Major', key: 'major', placeholder: 'e.g. Computer Science' },
-                  { label: 'Headline', key: 'headline', placeholder: 'e.g. Senior Engineer at Google' },
-                ].map(field => (
-                  <div key={field.key} className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{field.label}</label>
-                    <input
-                      value={profile[field.key as keyof typeof profile]}
-                      onChange={e => setProfile(prev => ({ ...prev, [field.key]: e.target.value }))}
-                      placeholder={field.placeholder}
-                      className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all placeholder:text-gray-600"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Bio</label>
-                <textarea
-                  value={profile.bio}
-                  onChange={e => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                  placeholder="Tell students about your career journey, expertise, and how you can help them..."
-                  rows={4}
-                  className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all resize-none placeholder:text-gray-600"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Link2 size={12} /> LinkedIn URL</label>
-                  <input value={profile.linkedin_url} onChange={e => setProfile(prev => ({ ...prev, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/..." className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all placeholder:text-gray-600" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Link2 size={12} /> GitHub URL</label>
-                  <input value={profile.github_url} onChange={e => setProfile(prev => ({ ...prev, github_url: e.target.value }))} placeholder="https://github.com/..." className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all placeholder:text-gray-600" />
-                </div>
-              </div>
-
-              <button onClick={handleSaveProfile}
-                className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-                {saveStatus}
-              </button>
-            </motion.div>
-          )}
+             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+               <div className="flex items-center gap-6 mb-8">
+                 <div className="w-24 h-24 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 font-bold text-3xl uppercase overflow-hidden shrink-0">
+                   {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{user?.name?.[0] || 'U'}</>}
+                 </div>
+                 
+                 <input 
+                   type="file" 
+                   ref={fileInputRef} 
+                   className="hidden" 
+                   accept="image/*" 
+                   onChange={(e) => {
+                     const file = e.target.files?.[0];
+                     if (file) {
+                       const objUrl = URL.createObjectURL(file);
+                       setAvatarUrl(objUrl);
+                     }
+                   }} 
+                 />
+                 <div>
+                   <h3 className="text-3xl font-bold text-white mb-2">My Profile</h3>
+                   <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm hover:bg-white/10 transition-colors text-white">
+                     Upload Avatar
+                   </button>
+                 </div>
+               </div>
+               
+               <ProfileForm />
+             </motion.div>
+           )}
 
           {/* Jobs Tab */}
           {activeTab === 'jobs' && (

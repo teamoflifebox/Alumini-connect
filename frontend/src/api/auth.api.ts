@@ -2,7 +2,7 @@ import { api } from './client';
 import type { LoginPayload, AuthResponse } from '../types';
 
 export const authApi = {
-  /** Alumni / Recruiter / Donor self-register */
+  /** Student self-register */
   register: (payload: { name: string; email: string; password: string; role?: string }) =>
     api.post<{ data: AuthResponse }>('/auth/register', payload),
 

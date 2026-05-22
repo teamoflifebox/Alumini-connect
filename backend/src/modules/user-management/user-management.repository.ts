@@ -31,14 +31,7 @@ export class UserManagementRepository {
     return result.rows[0];
   }
 
-  async verifyAlumni(userId: string, isApproved: boolean) {
-    const approvalStatus = isApproved ? 'approved' : 'pending';
-    const result = await pool.query(
-      'UPDATE users SET is_approved = $1, approval_status = $2, updated_at = NOW() WHERE id = $3 RETURNING *, primary_role as role',
-      [isApproved, approvalStatus, userId]
-    );
-    return result.rows[0];
-  }
+
 
   async getAllUsers() {
     const result = await pool.query(

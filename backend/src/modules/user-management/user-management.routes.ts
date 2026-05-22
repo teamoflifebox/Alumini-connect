@@ -6,7 +6,6 @@ import { validate } from '../../core/middlewares/validate';
 import {
   createStudentSchema,
   createAdminSchema,
-  verifyAlumniSchema,
   updateUserRoleSchema,
   userIdParamSchema,
   roleParamSchema,
@@ -48,12 +47,7 @@ router.get(
   asyncHandler(userManagementController.getUsersByRole.bind(userManagementController))
 );
 
-// Verify/unverify alumni account
-router.patch(
-  '/alumni/verify',
-  validate(verifyAlumniSchema),
-  asyncHandler(userManagementController.verifyAlumni.bind(userManagementController))
-);
+
 
 // Update user role
 router.patch(

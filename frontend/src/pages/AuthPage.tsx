@@ -10,8 +10,8 @@ export default function AuthPage() {
   const location = useLocation();
   const isLogin = location.pathname === '/login';
   
-  // Registration defaults to alumni/recruiter/donor in the new system.
-  const [role, setRole] = useState('alumni');
+  // Registration is strictly for students. They become alumni later.
+  const [role] = useState('student');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -44,10 +44,6 @@ export default function AuthPage() {
         if (formData.password.length < 6) {
           throw new Error('Password must be at least 6 characters.');
         }
-        if (role === 'student') {
-            throw new Error('Students must be registered by an administrator. Please contact your institution.');
-        }
-
         // Call backend API
         await authApi.register({
           name: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -113,18 +109,7 @@ export default function AuthPage() {
             <p className="text-muted-foreground">Manage your alumni and student network.</p>
           </div>
 
-          {!isLogin && (
-            <div className="flex gap-2 mb-8 p-1 bg-[#15171c] rounded-xl border border-white/5">
-              {['alumni', 'recruiter', 'donor'].map((r) => (
-                <button 
-                  key={r} type="button" onClick={() => setRole(r)}
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition-all ${role === r ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-white/5'}`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* No role selector needed - everyone signs up as a student */}
 
           <AnimatePresence mode="wait">
             {errorMsg && (

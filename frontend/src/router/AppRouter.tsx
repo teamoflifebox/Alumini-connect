@@ -24,12 +24,8 @@ const AlumniDashboard = lazy(() => import('../features/alumni/pages/AlumniDashbo
 const AlumniJobs = lazy(() => import('../features/alumni/pages/AlumniJobs'));
 const AlumniMentorship = lazy(() => import('../features/alumni/pages/AlumniMentorship'));
 
-// RECRUITER
-const RecruiterDashboard = lazy(() => import('../features/recruiter/pages/RecruiterDashboard'));
+// RECRUITER / DONOR FEATURES (Now accessible to Alumni/Students)
 const RecruiterPostJob = lazy(() => import('../features/recruiter/pages/RecruiterPostJob'));
-
-// DONOR
-const DonorDashboard = lazy(() => import('../features/donor/pages/DonorDashboard'));
 const DonorCampaigns = lazy(() => import('../features/donor/pages/DonorCampaigns'));
 
 // Shared
@@ -44,8 +40,6 @@ const RoleRedirect = () => {
     case 'admin':     return <Navigate to="/admin/dashboard" replace />;
     case 'student':   return <Navigate to="/student/dashboard" replace />;
     case 'alumni':    return <Navigate to="/alumni/dashboard" replace />;
-    case 'recruiter': return <Navigate to="/recruiter/dashboard" replace />;
-    case 'donor':     return <Navigate to="/donor/dashboard" replace />;
     default:          return <Navigate to="/login" replace />;
   }
 };
@@ -92,16 +86,10 @@ export const AppRouter = () => {
           <Route path="/alumni/mentorship" element={<AlumniMentorship />} />
         </Route>
 
-        {/* ─── Recruiter Routes ──────────────────────────────── */}
-        <Route element={<ProtectedRoute allowedRoles={['recruiter']} />}>
-          <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
-          <Route path="/recruiter/post-job" element={<RecruiterPostJob />} />
-        </Route>
-
-        {/* ─── Donor Routes ──────────────────────────────────── */}
-        <Route element={<ProtectedRoute allowedRoles={['donor']} />}>
-          <Route path="/donor/dashboard" element={<DonorDashboard />} />
-          <Route path="/donor/campaigns" element={<DonorCampaigns />} />
+        {/* ─── Shared Features (Jobs, Campaigns) ──────────────── */}
+        <Route element={<ProtectedRoute allowedRoles={['alumni', 'student']} />}>
+          <Route path="/jobs/post" element={<RecruiterPostJob />} />
+          <Route path="/campaigns" element={<DonorCampaigns />} />
         </Route>
 
         {/* ─── Catch All ─────────────────────────────────────── */}

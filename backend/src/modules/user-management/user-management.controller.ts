@@ -67,22 +67,7 @@ export class UserManagementController {
     }
   }
 
-  /**
-   * Admin verifies an alumni account
-   */
-  async verifyAlumni(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { user_id, is_verified } = req.body;
-      const user = await userManagementService.verifyAlumni(user_id, is_verified);
-      res.status(200).json({ 
-        status: 'success', 
-        data: { user },
-        message: `Alumni account ${is_verified ? 'verified' : 'unverified'} successfully`
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+
 
   /**
    * Delete a user (admin only)

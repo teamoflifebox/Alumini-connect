@@ -4,8 +4,7 @@ import { UpdateProfileDTO } from './profiles.types';
 export class ProfilesService {
   async getProfile(userId: string) {
     const profile = await profilesRepository.getProfileByUserId(userId);
-    if (!profile) throw new Error('Profile not found');
-    return profile;
+    return profile || null;
   }
 
   async updateProfile(userId: string, data: UpdateProfileDTO) {

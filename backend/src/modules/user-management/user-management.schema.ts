@@ -12,13 +12,10 @@ export const createAdminSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-export const verifyAlumniSchema = z.object({
-  user_id: z.string().min(1, 'User ID is required'),
-  is_verified: z.boolean(),
-});
+
 
 export const updateUserRoleSchema = z.object({
-  role: z.enum(['student', 'alumni', 'recruiter']),
+  role: z.enum(['student', 'alumni', 'admin']),
 });
 
 export const userIdParamSchema = z.object({
@@ -26,5 +23,5 @@ export const userIdParamSchema = z.object({
 });
 
 export const roleParamSchema = z.object({
-  role: z.enum(['student', 'alumni', 'recruiter', 'admin']),
+  role: z.enum(['student', 'alumni', 'admin']),
 });
