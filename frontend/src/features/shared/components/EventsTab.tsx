@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Search, MapPin, Users, Calendar as CalendarIcon, Share2, HelpCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, MapPin, Users, Calendar as CalendarIcon, Share2, HelpCircle, Plus, X } from 'lucide-react';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function EventsTab() {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   
   // Mock data representing the reference image
-  const events = [
+  const [events, setEvents] = useState([
     {
       id: 1,
       title: 'Khilkhilaht Rainbow Home, Rajkiya Navin Madhya Vidyalay Campus',
@@ -37,7 +39,29 @@ export default function EventsTab() {
       image: 'https://images.unsplash.com/photo-1588196749597-9ff047892305?q=80&w=600&auto=format&fit=crop', // Bhutan placeholder
       type: 'Past'
     }
-  ];
+  ]);
+
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [newEvent, setNewEvent] = useState({ title: '', location: '', date: '', image: '', mode: 'Offline' });
+
+  const handleCreateEvent = () => {
+    if (!newEvent.title || !newEvent.location || !newEvent.date) return;
+    
+    setEvents(prev => [{
+      id: Date.now(),
+      title: newEvent.title,
+      location: newEvent.location,
+      date: newEvent.date,
+      attendees: 0,
+      status: 'Online Registration Open',
+      image: newEvent.image || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=600&auto=format&fit=crop', // generic event placeholder
+      type: 'Upcoming'
+    }, ...prev]);
+    
+    setNewEvent({ title: '', location: '', date: '', image: '', mode: 'Offline' });
+    setShowEventForm(false);
+  };
+
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row gap-6 max-w-7xl mx-auto">
@@ -124,6 +148,73 @@ export default function EventsTab() {
 
       {/* Event List */}
       <div className="flex-1 space-y-6">
+        {(user?.primary_role === 'alumni' || user?.primary_role === 'admin') && (
+          <div className="flex justify-end mb-2">
+            <button onClick={() => setShowEventForm(true)} className="bg-primary hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(255,98,10,0.3)]">
+              <Plus size={18} /> Host Event
+            </button>
+          </div>
+        )}
+
+        <AnimatePresence>
+          {showEventForm && (
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+              className="bg-[#15171c] border border-primary/30 rounded-2xl p-6 shadow-2xl space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Host a New Event</h3>
+                <button onClick={() => setShowEventForm(false)} className="text-muted-foreground hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <input 
+                  type="text" 
+                  placeholder="Event Title *" 
+                  value={newEvent.title} 
+                  onChange={e => setNewEvent({...newEvent, title: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                />
+                <select 
+                  value={newEvent.mode} 
+                  onChange={e => setNewEvent({...newEvent, mode: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                >
+                  <option value="Offline">Offline / Physical Event</option>
+                  <option value="Online">Online / Virtual Event</option>
+                </select>
+                <input 
+                  type="text" 
+                  placeholder="Location / Platform Link *" 
+                  value={newEvent.location} 
+                  onChange={e => setNewEvent({...newEvent, location: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors md:col-span-2"
+                />
+                <input 
+                  type="text" 
+                  placeholder="Date & Time (e.g. Oct 10, 2026, 10:00 AM) *" 
+                  value={newEvent.date} 
+                  onChange={e => setNewEvent({...newEvent, date: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                />
+                <input 
+                  type="url" 
+                  placeholder="Cover Image URL (optional)" 
+                  value={newEvent.image} 
+                  onChange={e => setNewEvent({...newEvent, image: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-white/5">
+                <button onClick={handleCreateEvent} className="bg-primary hover:bg-brand-600 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(255,98,10,0.3)]">
+                  Publish Event
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {events.map((event) => (
           <div key={event.id} className="bg-[#15171c] border border-white/5 rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-xl hover:border-white/10 transition-colors group">
             <div className="w-full md:w-72 h-48 md:h-auto shrink-0 overflow-hidden relative">
