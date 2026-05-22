@@ -1,10 +1,8 @@
-// Primary Role represents user identity (5 roles)
+// Primary Role represents user identity (3 roles)
 // - admin: Platform administrators
-// - student: Current students (created by admin)
+// - student: Current students (created by self-registration)
 // - alumni: Graduated students
-// - recruiter: Company HR professionals
-// - donor: Philanthropists/sponsors
-export type PrimaryRole = 'admin' | 'student' | 'alumni' | 'recruiter' | 'donor';
+export type PrimaryRole = 'admin' | 'student' | 'alumni';
 
 // Capability Groups represent optional features (5 groups, available to ALL roles)
 // - mentor: Offer mentorship to students

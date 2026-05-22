@@ -11,7 +11,6 @@ interface Profile {
   email: string;
   role: string;
   is_verified: boolean;
-  is_approved: boolean;
   created_at: string;
 }
 
@@ -65,15 +64,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const verifyUser = async (id: string, isApproved: boolean) => {
-    try {
-      await api.patch('/user-management/alumni/verify', { user_id: id, is_verified: isApproved }); // The backend payload expects is_verified key but we mapped it to is_approved in SQL
-      setProfiles(prev => prev.map(p => p.id === id ? { ...p, is_approved: isApproved } : p));
-    } catch (error) {
-      console.error('Verify error:', error);
-      alert('Failed to update approval status');
-    }
-  };
+
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: BarChart2 },
@@ -203,7 +194,6 @@ export default function AdminDashboard() {
                       <th className="text-left px-6 py-4 text-muted-foreground font-medium">Role</th>
                       <th className="text-left px-6 py-4 text-muted-foreground font-medium">Joined</th>
                       <th className="text-left px-6 py-4 text-muted-foreground font-medium">Email Status</th>
-                      <th className="text-left px-6 py-4 text-muted-foreground font-medium">Admin Approval</th>
                       <th className="text-right px-6 py-4 text-muted-foreground font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -231,7 +221,7 @@ export default function AdminDashboard() {
                             onChange={e => updateRole(profile.id, e.target.value)}
                             className={`text-xs font-bold px-2 py-1 rounded border bg-transparent cursor-pointer ${roleColors[profile.role] || 'text-muted-foreground'}`}
                           >
-                            {['student', 'alumni', 'recruiter', 'admin', 'donor'].map(r => (
+                            {['student', 'alumni', 'admin'].map(r => (
                               <option key={r} value={r} className="bg-[#1c1f26] text-white">{r}</option>
                             ))}
                           </select>
@@ -244,26 +234,8 @@ export default function AdminDashboard() {
                             {profile.is_verified ? 'Verified' : 'Unverified'}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className={`text-xs font-bold px-2 py-1 rounded border ${profile.is_approved ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20'}`}>
-                            {profile.is_approved ? 'Approved' : 'Pending'}
-                          </span>
-                        </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                             {!profile.is_approved ? (
-                                profile.is_verified ? (
-                                  <button onClick={() => verifyUser(profile.id, true)} className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">
-                                    Approve
-                                  </button>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground italic px-2">Awaiting Email</span>
-                                )
-                             ) : (
-                                <button onClick={() => verifyUser(profile.id, false)} className="px-3 py-1.5 rounded-lg text-xs font-bold text-muted-foreground hover:text-white hover:bg-white/5 transition-colors">
-                                  Revoke
-                                </button>
-                             )}
                              <button onClick={() => deleteUser(profile.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors">
                                <Trash2 size={14} />
                              </button>

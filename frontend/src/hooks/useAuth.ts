@@ -17,8 +17,6 @@ export const useAuth = () => {
   const isAdmin = user?.role === 'admin';
   const isAlumni = user?.role === 'alumni';
   const isStudent = user?.role === 'student';
-  const isRecruiter = user?.role === 'recruiter';
-  const isDonor = user?.role === 'donor';
 
   // Pending verification: logged in but not yet verified by email OR not approved by admin
   const isPendingVerification = isAuthenticated && (user?.is_verified === false || user?.is_approved === false);
@@ -31,8 +29,6 @@ export const useAuth = () => {
     isAdmin,
     isAlumni,
     isStudent,
-    isRecruiter,
-    isDonor,
     hasRole,
     logout,
     setAuth,

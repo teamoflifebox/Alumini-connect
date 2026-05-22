@@ -63,21 +63,7 @@ export class UserManagementService {
     };
   }
 
-  /**
-   * Admin verifies an alumni account
-   */
-  async verifyAlumni(userId: string, isVerified: boolean) {
-    const user = await userManagementRepository.verifyAlumni(userId, isVerified);
-    if (!user) throw new AppError('User not found', 404);
-    return {
-      id: String(user.id),
-      name: user.name || '',
-      email: user.email,
-      role: user.role,
-      is_verified: user.is_verified,
-      updated_at: user.updated_at,
-    };
-  }
+
 
   /**
    * Get all users (admin only)

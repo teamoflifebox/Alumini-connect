@@ -52,8 +52,9 @@ export class AuthRepository {
     const { firstName, lastName, fullName } = splitName(data.name);
     
     // Determine approval status based on role
-    const isApproved = data.role === 'admin' || data.role === 'student';
-    const approvalStatus = isApproved ? 'approved' : 'pending';
+    // In the new system, everyone is automatically approved. Admin verification is removed.
+    const isApproved = true;
+    const approvalStatus = 'approved';
     
     const result = await pool.query<UserRecord>(
       `INSERT INTO users (

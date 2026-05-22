@@ -36,7 +36,6 @@ export const registerSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
   email: z.string().email('Valid email is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['student', 'alumni', 'recruiter', 'donor']),
-  company: z.string().optional(), // For recruiters
-  graduation_year: z.number().int().min(1900).max(new Date().getFullYear()).optional(), // For alumni
+  role: z.enum(['student', 'alumni']),
+  graduation_year: z.number().int().min(1900).max(new Date().getFullYear() + 10).optional(), // For students/alumni
 });

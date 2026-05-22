@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, LayoutDashboard, Settings, UserCircle, Briefcase, GraduationCap, ChevronRight, Check } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
+import ProfileForm from '../../profiles/components/ProfileForm';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -355,50 +356,34 @@ export default function StudentDashboard() {
 
            {activeTab === 'profile' && (
              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
-               <div className="border border-white/10 rounded-3xl p-8 bg-[#15171c]">
-                 <h3 className="text-3xl font-bold text-white mb-8">My Profile</h3>
-                 <div className="flex items-center gap-6 mb-8">
-                   <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center text-primary font-bold text-3xl uppercase overflow-hidden">
-                     {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{profileData.firstName?.[0] || 'U'}</>}
-                   </div>
-                   
-                   <input 
-                     type="file" 
-                     ref={fileInputRef} 
-                     className="hidden" 
-                     accept="image/*" 
-                     onChange={(e) => {
-                       const file = e.target.files?.[0];
-                       if (file) {
-                         const objUrl = URL.createObjectURL(file);
-                         setAvatarUrl(objUrl);
-                       }
-                     }} 
-                   />
+               <div className="flex items-center gap-6 mb-8">
+                 <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center text-primary font-bold text-3xl uppercase overflow-hidden shrink-0">
+                   {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{user?.name?.[0] || 'U'}</>}
+                 </div>
+                 
+                 <input 
+                   type="file" 
+                   ref={fileInputRef} 
+                   className="hidden" 
+                   accept="image/*" 
+                   onChange={(e) => {
+                     const file = e.target.files?.[0];
+                     if (file) {
+                       const objUrl = URL.createObjectURL(file);
+                       setAvatarUrl(objUrl);
+                     }
+                   }} 
+                 />
+                 <div>
+                   <h3 className="text-3xl font-bold text-white mb-2">My Profile</h3>
                    <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm hover:bg-white/10 transition-colors text-white">
                      Upload Avatar
                    </button>
                  </div>
-                 <div className="grid md:grid-cols-2 gap-6">
-                   <div className="space-y-2">
-                     <label className="text-sm text-muted-foreground">First Name</label>
-                     <input type="text" value={profileData.firstName} onChange={(e) => setProfileData({...profileData, firstName: e.target.value})} className="w-full bg-[#1c1f26] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
-                   </div>
-                   <div className="space-y-2">
-                     <label className="text-sm text-muted-foreground">Last Name</label>
-                     <input type="text" value={profileData.lastName} onChange={(e) => setProfileData({...profileData, lastName: e.target.value})} className="w-full bg-[#1c1f26] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
-                   </div>
-                   <div className="space-y-2 md:col-span-2">
-                     <label className="text-sm text-muted-foreground">Professional Bio</label>
-                     <textarea rows={4} value={profileData.bio} onChange={(e) => setProfileData({...profileData, bio: e.target.value})} className="w-full bg-[#1c1f26] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="Write a short summary about your background..." />
-                   </div>
-                 </div>
-                 <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
-                   <button onClick={handleProfileSave} className="bg-primary hover:bg-brand-600 text-white font-bold w-40 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(255,98,10,0.3)]">
-                     {saveStatus}
-                   </button>
-                 </div>
                </div>
+               
+               <ProfileForm />
+               
              </motion.div>
            )}
 

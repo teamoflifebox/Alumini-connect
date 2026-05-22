@@ -1,5 +1,4 @@
-// Mirrors the backend auth.types.ts UserRole
-export type UserRole = 'admin' | 'student' | 'alumni' | 'recruiter' | 'donor';
+export type UserRole = 'admin' | 'student' | 'alumni';
 
 export interface User {
   id: string;

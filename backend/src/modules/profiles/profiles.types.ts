@@ -1,34 +1,59 @@
 export interface UserProfile {
-  id: string;
-  user_id: string; // References the core User Account
+  id: number;
+  user_id: number; // References users(id)
   first_name: string;
   last_name: string;
-  batch_year: number;
-  department: string;
+  headline?: string;
+  bio?: string;
   
-  // Professional details
-  current_company?: string;
-  designation?: string;
-  experience_years?: number;
+  // Contact & Personal Info
+  phone?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zip?: string;
+  };
+  emergency_contacts?: Array<{
+    name: string;
+    relation: string;
+    phone: string;
+  }>;
   
-  // Matching & Search
-  skills: string[];
-  domains: string[];
+  // Professional Info
+  target_roles?: string[];
+  skills?: string[];
+  work_experience?: Array<{
+    company: string;
+    role: string;
+    start_date: string;
+    end_date?: string;
+    current?: boolean;
+    description?: string;
+  }>;
+  education?: Array<{
+    institution: string;
+    degree: string;
+    major: string;
+    year: number;
+    cgpa?: string;
+  }>;
   
-  // Preferences
+  // Social Links
+  social_links?: {
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+  };
+  
+  // Match/Search preferences
+  is_open_to_work: boolean;
   is_mentor_available: boolean;
-  preferences: Record<string, any>;
+  preferences?: Record<string, any>;
   
   created_at: Date;
   updated_at: Date;
 }
 
-export interface UpdateProfileDTO {
-  first_name?: string;
-  last_name?: string;
-  current_company?: string;
-  designation?: string;
-  skills?: string[];
-  domains?: string[];
-  is_mentor_available?: boolean;
-}
+export type UpdateProfileDTO = Partial<Omit<UserProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>>;
