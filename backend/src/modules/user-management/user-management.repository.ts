@@ -12,12 +12,12 @@ interface CreateUserParams {
 
 export class UserManagementRepository {
   async findUserByEmail(email: string) {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT *, primary_role as role FROM users WHERE email = $1', [email]);
     return result.rows[0];
   }
 
   async findUserById(userId: string) {
-    const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+    const result = await pool.query('SELECT *, primary_role as role FROM users WHERE id = $1', [userId]);
     return result.rows[0];
   }
 
@@ -25,23 +25,26 @@ export class UserManagementRepository {
     const result = await pool.query(
       `INSERT INTO users (name, email, password_hash, primary_role, is_verified, provider, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-       RETURNING *`,
+       RETURNING *, primary_role as role`,
       [params.name, params.email, params.passwordHash, params.role, params.isVerified, params.provider]
     );
     return result.rows[0];
   }
 
-  async verifyAlumni(userId: string, isVerified: boolean) {
+  async verifyAlumni(userId: string, isApproved: boolean) {
+    const approvalStatus = isApproved ? 'approved' : 'pending';
     const result = await pool.query(
       'UPDATE users SET is_verified = $1, updated_at = NOW() WHERE id = $2 AND primary_role = $3 RETURNING *',
       [isVerified, userId, 'alumni']
+      'UPDATE users SET is_approved = $1, approval_status = $2, updated_at = NOW() WHERE id = $3 RETURNING *, primary_role as role',
+      [isApproved, approvalStatus, userId]
     );
     return result.rows[0];
   }
 
   async getAllUsers() {
     const result = await pool.query(
-      'SELECT id, name, email, primary_role as role, is_verified, provider, created_at, updated_at FROM users ORDER BY created_at DESC'
+      'SELECT id, name, email, primary_role as role, is_verified, is_approved, approval_status, provider, created_at, updated_at FROM users ORDER BY created_at DESC'
     );
     return result.rows;
   }
@@ -60,7 +63,7 @@ export class UserManagementRepository {
 
   async updateUserRole(userId: string, newRole: UserRole) {
     const result = await pool.query(
-      'UPDATE users SET primary_role = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+      'UPDATE users SET primary_role = $1, updated_at = NOW() WHERE id = $2 RETURNING *, primary_role as role',
       [newRole, userId]
     );
     return result.rows[0];
