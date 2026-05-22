@@ -1,9 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, LayoutDashboard, Settings, UserCircle, Briefcase, GraduationCap, ChevronRight, Check } from 'lucide-react';
+import { LogOut, LayoutDashboard, Settings, UserCircle, Briefcase, GraduationCap, ChevronRight, Check, Users, Award, Bell } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import ProfileForm from '../../profiles/components/ProfileForm';
+import EventsTab from '../../shared/components/EventsTab';
+import CommunityTab from '../../shared/components/CommunityTab';
+import ReferralsTab from '../../shared/components/ReferralsTab';
+import DonationsTab from '../../shared/components/DonationsTab';
+import NotificationsTab from '../../shared/components/NotificationsTab';
+import MentorshipTab from '../../shared/components/MentorshipTab';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -165,19 +171,23 @@ export default function StudentDashboard() {
           <span className="font-bold tracking-tight text-lg text-white">AlumniConnect</span>
         </div>
 
-        <nav className="space-y-4 flex-1">
-          <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}>
-            <LayoutDashboard size={18} className={activeTab === 'dashboard' ? "text-primary" : ""} /> Dashboard
-          </button>
-          <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-colors ${activeTab === 'profile' ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}>
-            <UserCircle size={18} className={activeTab === 'profile' ? "text-primary" : ""} /> My Profile
-          </button>
-          <button onClick={() => setActiveTab('opportunities')} className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-colors ${activeTab === 'opportunities' ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}>
-            <Briefcase size={18} className={activeTab === 'opportunities' ? "text-primary" : ""} /> Opportunity Hub
-          </button>
-          <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-colors ${activeTab === 'settings' ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}>
-            <Settings size={18} className={activeTab === 'settings' ? "text-primary" : ""} /> Settings
-          </button>
+        <nav className="space-y-2 flex-1">
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { id: 'profile', label: 'My Profile', icon: UserCircle },
+            { id: 'opportunities', label: 'Opportunity Hub', icon: Briefcase },
+            { id: 'mentorship', label: 'Mentorship', icon: Users },
+            { id: 'community', label: 'Community', icon: Users },
+            { id: 'events', label: 'Events', icon: Award },
+            { id: 'referrals', label: 'Referrals', icon: Users },
+            { id: 'donations', label: 'Donations', icon: Award },
+            { id: 'notifications', label: 'Notifications', icon: Bell },
+            { id: 'settings', label: 'Settings', icon: Settings },
+          ].map(item => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-colors ${activeTab === item.id ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}>
+              <item.icon size={18} className={activeTab === item.id ? "text-primary" : ""} /> {item.label}
+            </button>
+          ))}
         </nav>
 
         <button onClick={() => setShowSignOutModal(true)} className="mt-auto flex items-center gap-3 text-muted-foreground hover:text-destructive py-2 px-3 rounded-lg transition-colors">
@@ -491,6 +501,13 @@ export default function StudentDashboard() {
                )}
              </motion.div>
            )}
+
+           {activeTab === 'mentorship' && <MentorshipTab />}
+           {activeTab === 'community' && <CommunityTab />}
+           {activeTab === 'events' && <EventsTab />}
+           {activeTab === 'referrals' && <ReferralsTab />}
+           {activeTab === 'donations' && <DonationsTab />}
+           {activeTab === 'notifications' && <NotificationsTab />}
 
            {activeTab === 'settings' && (
              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="border border-white/10 rounded-3xl p-8 bg-[#15171c]">

@@ -5,8 +5,15 @@ import {
   LogOut, LayoutDashboard, Settings, UserCircle, Briefcase,
   Users, TrendingUp, Award, BookOpen, Edit3, Plus,
   ChevronRight, X, Building, MapPin, RefreshCw, Link2
+} from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import ProfileForm from '../../profiles/components/ProfileForm';
+import EventsTab from '../../shared/components/EventsTab';
+import CommunityTab from '../../shared/components/CommunityTab';
+import ReferralsTab from '../../shared/components/ReferralsTab';
+import DonationsTab from '../../shared/components/DonationsTab';
+import NotificationsTab from '../../shared/components/NotificationsTab';
+import MentorshipTab from '../../shared/components/MentorshipTab';
 
 interface JobPost {
   id: number;
@@ -116,6 +123,11 @@ export default function AlumniDashboard() {
     { id: 'profile', label: 'My Profile', icon: UserCircle },
     { id: 'jobs', label: 'Job Board', icon: Briefcase },
     { id: 'mentorship', label: 'Mentorship', icon: Users },
+    { id: 'community', label: 'Community', icon: Users },
+    { id: 'events', label: 'Events', icon: Award },
+    { id: 'referrals', label: 'Referrals', icon: Users },
+    { id: 'donations', label: 'Donations', icon: Award },
+    { id: 'notifications', label: 'Notifications', icon: Award },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -351,46 +363,12 @@ export default function AlumniDashboard() {
           )}
 
           {/* Mentorship Tab */}
-          {activeTab === 'mentorship' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-              <div className="p-6 border border-purple-500/20 rounded-2xl bg-purple-500/5">
-                <div className="flex items-center gap-3 mb-2">
-                  <Award size={20} className="text-purple-400" />
-                  <h3 className="font-bold text-white">Mentorship Status</h3>
-                </div>
-                <p className="text-muted-foreground text-sm">You have <span className="text-white font-bold">{stats.menteeCount}</span> active mentee{stats.menteeCount !== 1 ? 's' : ''}. Students can find you in the Opportunity Hub and send mentorship requests.</p>
-              </div>
-
-              {mentorRequests.length === 0 ? (
-                <div className="text-center py-16 border border-dashed border-white/10 rounded-3xl">
-                  <Users size={40} className="mx-auto text-muted-foreground opacity-30 mb-4" />
-                  <h3 className="font-bold text-white text-lg mb-2">No Mentorship Requests Yet</h3>
-                  <p className="text-muted-foreground text-sm">Students who request mentorship from you will appear here.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {mentorRequests.map(req => (
-                    <div key={req.id} className="p-5 border border-white/5 rounded-2xl bg-[#15171c] flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-sm font-bold text-purple-400">
-                          {req.mentee_name?.[0]?.toUpperCase() || '?'}
-                        </div>
-                        <div>
-                          <p className="font-bold text-white">{req.mentee_name || 'Student'}</p>
-                          <p className="text-xs text-muted-foreground">{req.goals || 'Career guidance'}</p>
-                        </div>
-                      </div>
-                      <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                        req.status === 'active' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' :
-                        req.status === 'pending' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' :
-                        'text-muted-foreground bg-white/5 border-white/10'
-                      }`}>{req.status}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
+          {activeTab === 'mentorship' && <MentorshipTab />}
+          {activeTab === 'community' && <CommunityTab />}
+          {activeTab === 'events' && <EventsTab />}
+          {activeTab === 'referrals' && <ReferralsTab />}
+          {activeTab === 'donations' && <DonationsTab />}
+          {activeTab === 'notifications' && <NotificationsTab />}
 
           {/* Settings Tab */}
           {activeTab === 'settings' && (
