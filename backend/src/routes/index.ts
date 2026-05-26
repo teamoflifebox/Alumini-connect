@@ -4,6 +4,7 @@ import userManagementRoutes from '../modules/user-management/user-management.rou
 import profilesRoutes from '../modules/profiles/profiles.routes';
 import jobsRoutes from '../modules/jobs/jobs.routes';
 import rbacRoutes from '../modules/rbac/rbac.routes';
+import eventsRoutes from '../modules/events/events.routes';
 
 /**
  * Central API route registration
@@ -30,5 +31,8 @@ router.use('/jobs', jobsRoutes);
 
 // RBAC: Roles, capabilities, permissions management
 router.use('/rbac', rbacRoutes);
+
+// Events
+router.use('/events', eventsRoutes);
 
 export default router;

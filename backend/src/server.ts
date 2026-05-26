@@ -2,6 +2,7 @@ import { createApp } from './createApp';
 import pool from './config/database';
 import { env } from './config/env';
 import { connectRedis } from './config/redis';
+import { initMeilisearch } from './core/config/meilisearch';
 
 const PORT = env.PORT;
 
@@ -18,6 +19,8 @@ const startServer = async () => {
     const client = await pool.connect();
     console.log('Database connection established successfully.');
     client.release();
+
+    await initMeilisearch();
 
     const app = createApp();
 

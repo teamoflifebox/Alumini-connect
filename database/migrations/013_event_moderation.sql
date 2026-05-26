@@ -1,0 +1,13 @@
+ALTER TABLE users ADD COLUMN IF NOT EXISTS trust_score INTEGER DEFAULT 50;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verified_organizer BOOLEAN DEFAULT false;
+
+ALTER TABLE events ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+
+CREATE TABLE IF NOT EXISTS event_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    reporter_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    reason VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(event_id, reporter_id)
+);
