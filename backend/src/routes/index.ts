@@ -5,6 +5,7 @@ import profilesRoutes from '../modules/profiles/profiles.routes';
 import jobsRoutes from '../modules/jobs/jobs.routes';
 import rbacRoutes from '../modules/rbac/rbac.routes';
 import eventsRoutes from '../modules/events/events.routes';
+import donationsRoutes from '../modules/donations/donations.routes';
 
 /**
  * Central API route registration
@@ -34,5 +35,8 @@ router.use('/rbac', rbacRoutes);
 
 // Events
 router.use('/events', eventsRoutes);
+
+// Donations
+router.use('/donations', donationsRoutes);
 
 export default router;
