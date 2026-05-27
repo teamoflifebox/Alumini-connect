@@ -1,8 +1,11 @@
-import { motion } from 'framer-motion';
-import { Heart, Target, TrendingUp, ChevronRight, Award, Users } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Target, TrendingUp, ChevronRight, Award, Users, Plus, X } from 'lucide-react';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function DonationsTab() {
-  const campaigns = [
+  const { user } = useAuth();
+  const [campaigns, setCampaigns] = useState([
     {
       id: 1,
       title: 'Scholarship Fund 2026',
@@ -21,7 +24,27 @@ export default function DonationsTab() {
       donors: 45,
       image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600&auto=format&fit=crop'
     }
-  ];
+  ]);
+
+  const [showCampaignForm, setShowCampaignForm] = useState(false);
+  const [newCampaign, setNewCampaign] = useState({ title: '', description: '', goal: '', image: '' });
+
+  const handleCreateCampaign = () => {
+    if (!newCampaign.title || !newCampaign.description || !newCampaign.goal) return;
+    
+    setCampaigns(prev => [{
+      id: Date.now(),
+      title: newCampaign.title,
+      description: newCampaign.description,
+      raised: 0,
+      goal: Number(newCampaign.goal),
+      donors: 0,
+      image: newCampaign.image || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb0?q=80&w=600&auto=format&fit=crop'
+    }, ...prev]);
+    
+    setNewCampaign({ title: '', description: '', goal: '', image: '' });
+    setShowCampaignForm(false);
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto space-y-8">
@@ -52,7 +75,66 @@ export default function DonationsTab() {
 
       {/* Active Campaigns */}
       <div>
-        <h3 className="text-2xl font-bold text-white mb-6">Active Campaigns</h3>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-white">Active Campaigns</h3>
+          {user?.primary_role === 'admin' && (
+            <button onClick={() => setShowCampaignForm(true)} className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(236,72,153,0.3)]">
+              <Plus size={18} /> Create Campaign
+            </button>
+          )}
+        </div>
+
+        <AnimatePresence>
+          {showCampaignForm && (
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+              className="bg-[#15171c] border border-pink-500/30 rounded-3xl p-8 shadow-2xl mb-8 space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Launch New Campaign</h3>
+                <button onClick={() => setShowCampaignForm(false)} className="text-muted-foreground hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <input 
+                  type="text" 
+                  placeholder="Campaign Title *" 
+                  value={newCampaign.title} 
+                  onChange={e => setNewCampaign({...newCampaign, title: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-500 transition-colors md:col-span-2"
+                />
+                <textarea 
+                  placeholder="Campaign Description & Impact *" 
+                  value={newCampaign.description} 
+                  rows={3}
+                  onChange={e => setNewCampaign({...newCampaign, description: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-500 transition-colors md:col-span-2 resize-none"
+                />
+                <input 
+                  type="number" 
+                  placeholder="Funding Goal ($) *" 
+                  value={newCampaign.goal} 
+                  onChange={e => setNewCampaign({...newCampaign, goal: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-500 transition-colors"
+                />
+                <input 
+                  type="url" 
+                  placeholder="Cover Image URL (optional)" 
+                  value={newCampaign.image} 
+                  onChange={e => setNewCampaign({...newCampaign, image: e.target.value})}
+                  className="w-full bg-[#1c1f26] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-white/5">
+                <button onClick={handleCreateCampaign} className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(236,72,153,0.3)]">
+                  Launch Campaign
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="grid md:grid-cols-2 gap-6">
           {campaigns.map(campaign => {
             const progress = (campaign.raised / campaign.goal) * 100;

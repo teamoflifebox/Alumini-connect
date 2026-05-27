@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, Briefcase, GraduationCap, Settings, LogOut, Shield, BarChart2, Bell, ChevronDown, Trash2, Eye, RefreshCw } from 'lucide-react';
+import { Users, Briefcase, GraduationCap, Settings, LogOut, Shield, BarChart2, Bell, ChevronDown, Trash2, Eye, RefreshCw, UserCircle, Award } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../api/client';
+import ProfileForm from '../../profiles/components/ProfileForm';
+import EventsTab from '../../shared/components/EventsTab';
+import CommunityTab from '../../shared/components/CommunityTab';
+import DonationsTab from '../../shared/components/DonationsTab';
+import NotificationsTab from '../../shared/components/NotificationsTab';
+import MentorshipTab from '../../shared/components/MentorshipTab';
 
 interface Profile {
   id: string;
@@ -70,7 +76,12 @@ export default function AdminDashboard() {
     { id: 'overview', label: 'Overview', icon: BarChart2 },
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'jobs', label: 'Job Postings', icon: Briefcase },
-    { id: 'scholarships', label: 'Scholarships', icon: GraduationCap },
+    { id: 'events', label: 'Events', icon: Award },
+    { id: 'donations', label: 'Donations & Campaigns', icon: GraduationCap },
+    { id: 'mentorship', label: 'Mentorship', icon: Users },
+    { id: 'community', label: 'Community', icon: Users },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'profile', label: 'My Profile', icon: UserCircle },
     { id: 'settings', label: 'System Settings', icon: Settings },
   ];
 
@@ -253,17 +264,25 @@ export default function AdminDashboard() {
           {activeTab === 'jobs' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-12 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
               <Briefcase size={40} className="mx-auto text-muted-foreground mb-4 opacity-40" />
-              <h3 className="font-bold text-white text-lg mb-2">No Job Postings Yet</h3>
-              <p className="text-muted-foreground text-sm">Recruiters haven't posted any jobs yet. They'll appear here for moderation.</p>
+              <h3 className="font-bold text-white text-lg mb-2">Job Postings Management</h3>
+              <p className="text-muted-foreground text-sm">Create and moderate job postings across the platform.</p>
+              <button className="mt-6 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl font-bold transition-colors">Create Job Post</button>
             </motion.div>
           )}
 
-          {/* Scholarships Tab */}
-          {activeTab === 'scholarships' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-12 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
-              <GraduationCap size={40} className="mx-auto text-muted-foreground mb-4 opacity-40" />
-              <h3 className="font-bold text-white text-lg mb-2">No Scholarships Yet</h3>
-              <p className="text-muted-foreground text-sm">Donors haven't created any scholarship funds yet.</p>
+          {activeTab === 'events' && <EventsTab />}
+          {activeTab === 'donations' && <DonationsTab />}
+          {activeTab === 'mentorship' && <MentorshipTab />}
+          {activeTab === 'community' && <CommunityTab />}
+          {activeTab === 'notifications' && <NotificationsTab />}
+          
+          {activeTab === 'profile' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="mb-8">
+                <h3 className="text-3xl font-bold text-white">Admin Profile</h3>
+                <p className="text-muted-foreground">Manage your personal admin account details.</p>
+              </div>
+              <ProfileForm />
             </motion.div>
           )}
 

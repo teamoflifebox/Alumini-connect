@@ -137,7 +137,7 @@ export default function AlumniDashboard() {
       <aside className="w-64 shrink-0 flex flex-col border-r border-white/10 bg-[#0f1117] p-5">
         <div className="flex items-center gap-3 mb-10">
           <div
-            className="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/30 bg-emerald-500/10 cursor-pointer flex items-center justify-center text-lg font-bold text-emerald-400"
+            className="w-10 h-10 rounded-xl overflow-hidden border border-primary/30 bg-primary/10 cursor-pointer flex items-center justify-center text-lg font-bold text-primary"
             onClick={() => fileInputRef.current?.click()}
           >
             {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" /> : (user?.name?.[0]?.toUpperCase() || 'A')}
@@ -145,7 +145,7 @@ export default function AlumniDashboard() {
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           <div>
             <p className="font-bold text-sm text-white">{user?.name}</p>
-            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Alumni</span>
+            <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">Alumni</span>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export default function AlumniDashboard() {
             <button key={item.id} onClick={() => setActiveTab(item.id)}
               className={`flex items-center gap-3 py-2.5 px-3 rounded-xl text-sm font-medium transition-all ${
                 activeTab === item.id
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  ? 'bg-primary/10 text-primary border border-primary/20'
                   : 'text-muted-foreground hover:text-white hover:bg-white/5'
               }`}
             >
@@ -180,7 +180,7 @@ export default function AlumniDashboard() {
               <RefreshCw size={15} />
             </button>
             <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 text-sm">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-white font-medium">Active</span>
             </div>
           </div>
@@ -192,11 +192,11 @@ export default function AlumniDashboard() {
           {activeTab === 'overview' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
               {/* Welcome Banner */}
-              <div className="rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-transparent p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-emerald-400 text-sm font-semibold mb-1">👋 Welcome back</p>
+                    <p className="text-primary text-sm font-semibold mb-1">👋 Welcome back</p>
                     <h2 className="text-3xl font-bold text-white mb-2">{user?.name}</h2>
                     <p className="text-muted-foreground">{profile.headline || 'Add your headline in your profile'}</p>
                     {profile.company && (
@@ -206,7 +206,7 @@ export default function AlumniDashboard() {
                       </div>
                     )}
                   </div>
-                  <button onClick={() => setActiveTab('profile')} className="flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl hover:bg-emerald-500/20 transition-all">
+                  <button onClick={() => setActiveTab('profile')} className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl hover:bg-primary/20 transition-all">
                     <Edit3 size={14} /> Edit Profile
                   </button>
                 </div>
@@ -217,7 +217,7 @@ export default function AlumniDashboard() {
                 {[
                   { label: 'Jobs Posted', value: stats.jobsPosted, icon: Briefcase, color: 'text-blue-400', bg: 'from-blue-500/10' },
                   { label: 'Active Mentees', value: stats.menteeCount, icon: Users, color: 'text-purple-400', bg: 'from-purple-500/10' },
-                  { label: 'Profile Views', value: stats.profileViews, icon: TrendingUp, color: 'text-emerald-400', bg: 'from-emerald-500/10' },
+                  { label: 'Profile Views', value: stats.profileViews, icon: TrendingUp, color: 'text-primary', bg: 'from-primary/10' },
                 ].map((s, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
                     className="p-6 rounded-2xl border border-white/5 bg-[#15171c] relative overflow-hidden">
@@ -261,7 +261,7 @@ export default function AlumniDashboard() {
           {activeTab === 'profile' && (
              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                <div className="flex items-center gap-6 mb-8">
-                 <div className="w-24 h-24 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 font-bold text-3xl uppercase overflow-hidden shrink-0">
+                 <div className="w-24 h-24 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-primary font-bold text-3xl uppercase overflow-hidden shrink-0">
                    {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{user?.name?.[0] || 'U'}</>}
                  </div>
                  
@@ -295,7 +295,7 @@ export default function AlumniDashboard() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               <div className="flex justify-between items-center">
                 <p className="text-muted-foreground text-sm">{myJobs.length} job{myJobs.length !== 1 ? 's' : ''} posted by you</p>
-                <button onClick={() => setShowJobForm(true)} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all">
+                <button onClick={() => setShowJobForm(true)} className="flex items-center gap-2 bg-primary hover:bg-brand-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all">
                   <Plus size={15} /> Post New Job
                 </button>
               </div>
@@ -304,7 +304,7 @@ export default function AlumniDashboard() {
               <AnimatePresence>
                 {showJobForm && (
                   <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    className="border border-emerald-500/20 rounded-2xl bg-[#15171c] p-6 space-y-4">
+                    className="border border-primary/20 rounded-2xl bg-[#15171c] p-6 space-y-4">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-bold text-white">New Job Posting</h3>
                       <button onClick={() => setShowJobForm(false)} className="text-muted-foreground hover:text-white"><X size={18} /></button>
@@ -317,17 +317,17 @@ export default function AlumniDashboard() {
                         { key: 'salary_range', placeholder: 'Salary Range (e.g. ₹8-12 LPA)' },
                       ].map(f => (
                         <input key={f.key} value={jobForm[f.key as keyof typeof jobForm]} onChange={e => setJobForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                          placeholder={f.placeholder} className="bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all placeholder:text-gray-600" />
+                          placeholder={f.placeholder} className="bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-gray-600" />
                       ))}
                     </div>
-                    <select value={jobForm.type} onChange={e => setJobForm(prev => ({ ...prev, type: e.target.value }))} className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
+                    <select value={jobForm.type} onChange={e => setJobForm(prev => ({ ...prev, type: e.target.value }))} className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
                       {['Full-time', 'Part-time', 'Internship', 'Contract', 'Remote'].map(t => <option key={t} value={t} className="bg-[#1c1f26]">{t}</option>)}
                     </select>
                     <textarea value={jobForm.description} onChange={e => setJobForm(prev => ({ ...prev, description: e.target.value }))}
                       placeholder="Job description and requirements *" rows={4}
-                      className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none placeholder:text-gray-600" />
+                      className="w-full bg-[#1c1f26] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none placeholder:text-gray-600" />
                     <button onClick={handlePostJob} disabled={postingJob}
-                      className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all disabled:opacity-60">
+                      className="w-full py-3 rounded-xl bg-primary hover:bg-brand-600 text-white font-bold transition-all disabled:opacity-60">
                       {postingJob ? 'Posting...' : 'Post Job'}
                     </button>
                   </motion.div>
@@ -347,7 +347,7 @@ export default function AlumniDashboard() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 flex-wrap mb-1">
                           <h4 className="font-bold text-white">{job.title}</h4>
-                          <span className="text-xs px-2 py-0.5 rounded-full border border-emerald-500/20 text-emerald-400 bg-emerald-500/10">{job.type}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full border border-primary/20 text-primary bg-primary/10">{job.type}</span>
                         </div>
                         <p className="text-sm text-muted-foreground">{job.company} · {job.location}</p>
                         <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{job.description}</p>
@@ -383,8 +383,8 @@ export default function AlumniDashboard() {
                     <h4 className="font-bold text-white mb-1">{s.label}</h4>
                     <p className="text-sm text-muted-foreground">{s.desc}</p>
                   </div>
-                  <div className="w-12 h-6 bg-emerald-500/30 rounded-full relative cursor-pointer border border-emerald-500/30">
-                    <div className="w-4 h-4 bg-emerald-400 rounded-full absolute right-1 top-1" />
+                  <div className="w-12 h-6 bg-primary/30 rounded-full relative cursor-pointer border border-primary/30">
+                    <div className="w-4 h-4 bg-primary rounded-full absolute right-1 top-1" />
                   </div>
                 </div>
               ))}
