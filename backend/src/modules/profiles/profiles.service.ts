@@ -10,6 +10,11 @@ export class ProfilesService {
   async updateProfile(userId: string, data: UpdateProfileDTO) {
     return await profilesRepository.updateProfile(userId, data);
   }
+
+  async searchUsers(query: string) {
+    if (!query || query.trim().length < 2) return [];
+    return await profilesRepository.searchUsers(query.trim());
+  }
 }
 
 export const profilesService = new ProfilesService();

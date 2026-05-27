@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import NotificationBell from '../../features/shared/components/NotificationBell';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -89,8 +90,15 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <header className="bg-white border-b p-6">
+        <header className="bg-white border-b p-6 flex justify-between items-center sticky top-0 z-40">
           <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
+          
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+          </div>
         </header>
         <div className="p-8">
           {children}
