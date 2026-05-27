@@ -9,5 +9,6 @@ router.use(requireAuth);
 
 router.get('/me', profilesController.getMyProfile);
 router.patch('/me', profilesController.updateMyProfile);
+router.get('/search', profilesController.searchUsers);
 
 export default router;

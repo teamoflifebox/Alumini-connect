@@ -4,6 +4,8 @@ import userManagementRoutes from '../modules/user-management/user-management.rou
 import profilesRoutes from '../modules/profiles/profiles.routes';
 import jobsRoutes from '../modules/jobs/jobs.routes';
 import rbacRoutes from '../modules/rbac/rbac.routes';
+import mentorshipRoutes from '../modules/mentorship/mentorship.routes';
+import notificationsRoutes from '../modules/notifications/notifications.routes';
 
 /**
  * Central API route registration
@@ -30,5 +32,11 @@ router.use('/jobs', jobsRoutes);
 
 // RBAC: Roles, capabilities, permissions management
 router.use('/rbac', rbacRoutes);
+
+// Mentorship Sessions & Search
+router.use('/mentorship', mentorshipRoutes);
+
+// Notifications
+router.use('/notifications', notificationsRoutes);
 
 export default router;

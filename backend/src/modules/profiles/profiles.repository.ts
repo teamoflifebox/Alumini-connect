@@ -3,7 +3,7 @@ import { UpdateProfileDTO, UserProfile } from './profiles.types';
 
 export class ProfilesRepository {
   async getProfileByUserId(userId: string): Promise<UserProfile | undefined> {
-    const query = 'SELECT * FROM user_profiles WHERE user_id = $1';
+    const query = 'SELECT * FROM profiles WHERE user_id = $1';
     const result = await pool.query(query, [userId]);
     return result.rows[0];
   }
@@ -35,7 +35,7 @@ export class ProfilesRepository {
     // Upsert logic: If the profile doesn't exist, we should probably insert it.
     // However, UPDATE ... RETURNING is easier. If it returns 0 rows, we can INSERT.
     const updateQuery = `
-      UPDATE user_profiles 
+      UPDATE profiles 
       SET ${setClauses.join(', ')}, updated_at = NOW() 
       WHERE user_id = $1 
       RETURNING *;
@@ -48,7 +48,7 @@ export class ProfilesRepository {
       const insertColumns = ['user_id', ...keys];
       const insertPlaceholders = ['$1', ...keys.map((_, i) => `$${i + 2}`)];
       const insertQuery = `
-        INSERT INTO user_profiles (${insertColumns.join(', ')})
+        INSERT INTO profiles (${insertColumns.join(', ')})
         VALUES (${insertPlaceholders.join(', ')})
         RETURNING *;
       `;
@@ -56,6 +56,18 @@ export class ProfilesRepository {
     }
     
     return result.rows[0];
+  }
+
+  async searchUsers(searchQuery: string) {
+    const query = `
+      SELECT u.id, u.name, u.email, u.primary_role as role, p.designation as headline
+      FROM users u
+      LEFT JOIN profiles p ON u.id = p.user_id
+      WHERE u.name ILIKE $1 OR u.email ILIKE $1
+      LIMIT 10;
+    `;
+    const result = await pool.query(query, [`%${searchQuery}%`]);
+    return result.rows;
   }
 }
 
