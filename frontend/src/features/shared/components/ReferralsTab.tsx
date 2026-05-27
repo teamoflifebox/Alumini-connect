@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, UserPlus, CheckCircle, Search, Trophy, MapPin, Clock, ExternalLink } from 'lucide-react';
-import { referralsApi, Referral } from '../../../api/referrals.api';
+import { referralsApi, type Referral } from '../../../api/referrals.api';
+import { useAuthStore } from '../../../store/authStore';
 import CreateReferralModal from '../../referrals/components/CreateReferralModal';
-import ApplyReferralModal from '../../referrals/components/ApplyReferralModal';
+import ViewReferralModal from '../../referrals/components/ViewReferralModal';
 import ApplicationTrackingList from '../../referrals/components/ApplicationTrackingList';
 
 type TabType = 'Explore' | 'My Posted' | 'Leaderboard';
 
 export default function ReferralsTab() {
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('Explore');
   
   // Modals state
@@ -16,12 +18,32 @@ export default function ReferralsTab() {
   const [selectedApplyReferral, setSelectedApplyReferral] = useState<Referral | null>(null);
   const [selectedTrackingReferral, setSelectedTrackingReferral] = useState<Referral | null>(null);
 
-  // Data state
   const [exploreReferrals, setExploreReferrals] = useState<Referral[]>([]);
   const [myReferrals, setMyReferrals] = useState<Referral[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Applicant Status Updater (Syncs with backend)
+  const updateReferralStatus = async (ref: Referral, newStatus: string) => {
+    if (!ref.user_application_id) return;
+    
+    try {
+      await referralsApi.updateApplicationStatus(ref.user_application_id, newStatus);
+      
+      // Update local state instantly
+      setExploreReferrals(prev => prev.map(r => 
+        r.id === ref.id ? { ...r, user_application_status: newStatus } : r
+      ));
+      
+      // Also update selected apply referral if open
+      if (selectedApplyReferral?.id === ref.id) {
+        setSelectedApplyReferral(prev => prev ? { ...prev, user_application_status: newStatus } : prev);
+      }
+    } catch (e) {
+      console.error('Failed to update status', e);
+    }
+  };
 
   // Load initial data
   useEffect(() => {
@@ -33,7 +55,8 @@ export default function ReferralsTab() {
     try {
       if (activeTab === 'Explore') {
         const data = await referralsApi.getAllReferrals();
-        setExploreReferrals(data);
+        // Filter out referrals posted by the current user
+        setExploreReferrals(data.filter((ref: Referral) => Number(ref.user_id) !== Number(user?.id)));
       } else if (activeTab === 'My Posted') {
         const data = await referralsApi.getMyPostedReferrals();
         setMyReferrals(data);
@@ -54,7 +77,7 @@ export default function ReferralsTab() {
     setLoading(true);
     try {
       const data = await referralsApi.getAllReferrals({ search: searchQuery });
-      setExploreReferrals(data);
+      setExploreReferrals(data.filter((ref: Referral) => Number(ref.user_id) !== Number(user?.id)));
     } catch (err) {
       console.error(err);
     } finally {
@@ -129,12 +152,62 @@ export default function ReferralsTab() {
                     <p className="font-bold text-white">{ref.posted_by_name}</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => setSelectedApplyReferral(ref)}
-                  className="bg-primary/10 hover:bg-primary text-primary hover:text-white px-5 py-2 rounded-xl text-sm font-bold transition-all"
-                >
-                  Apply Now
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setSelectedApplyReferral(ref)}
+                    className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                  >
+                    View
+                  </button>
+                  {ref.user_application_id ? (
+                    <select
+                      value={ref.user_application_status || 'Applied'}
+                      onChange={(e) => updateReferralStatus(ref, e.target.value)}
+                      className="bg-primary/20 border border-primary/30 text-primary px-3 py-2 rounded-xl text-sm font-bold focus:outline-none focus:border-primary transition-all cursor-pointer"
+                    >
+                      <option value="Applied">Applied</option>
+                      <option value="Shortlisted">Shortlisted</option>
+                      <option value="Interview Scheduled">Interview Scheduled</option>
+                      <option value="Attended Interview">Attended Interview</option>
+                      <option value="Rejected">Rejected</option>
+                      <option value="Offer Received">Offer Received</option>
+                    </select>
+                  ) : (
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const newApp = await referralsApi.applyToReferral(ref.id, {
+                            fullName: user?.name || 'External Applicant',
+                            email: user?.email || 'external@example.com',
+                            phoneNumber: user?.phone || 'External',
+                            resumeUrl: 'Applied via external link',
+                            skills: [], course: '', year: '', cgpa: '', portfolioLinks: {}
+                          });
+                          
+                          // Instantly update the local exploreReferrals state to show the dropdown
+                          setExploreReferrals(prev => prev.map(r => 
+                            r.id === ref.id ? { ...r, user_application_id: newApp.id, user_application_status: 'Applied' } : r
+                          ));
+
+                          if (ref.referral_link) {
+                            window.open(
+                              ref.referral_link.startsWith('http') ? ref.referral_link : `https://${ref.referral_link}`, 
+                              '_blank'
+                            );
+                          } else {
+                            // Fallback if no link
+                            setSelectedApplyReferral(ref);
+                          }
+                        } catch (e) { 
+                          console.error(e); 
+                        }
+                      }}
+                      className="bg-primary hover:bg-brand-600 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)] hover:shadow-[0_0_30px_rgba(37,99,235,0.4)]"
+                    >
+                      Apply Now
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -199,12 +272,20 @@ export default function ReferralsTab() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={() => setSelectedTrackingReferral(ref)}
-                        className="text-primary hover:text-white transition-colors font-semibold bg-primary/10 px-4 py-1.5 rounded-lg text-xs"
-                      >
-                        View Applicants
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => setSelectedApplyReferral(ref)}
+                          className="text-white hover:text-primary transition-colors font-semibold bg-white/5 hover:bg-white/10 px-4 py-1.5 rounded-lg text-xs"
+                        >
+                          View
+                        </button>
+                        <button 
+                          onClick={() => setSelectedTrackingReferral(ref)}
+                          className="text-primary hover:text-white transition-colors font-semibold bg-primary/10 px-4 py-1.5 rounded-lg text-xs"
+                        >
+                          View Applicants
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -304,13 +385,10 @@ export default function ReferralsTab() {
         )}
         
         {selectedApplyReferral && (
-          <ApplyReferralModal 
+          <ViewReferralModal 
             referral={selectedApplyReferral}
             onClose={() => setSelectedApplyReferral(null)}
-            onSuccess={() => {
-              setSelectedApplyReferral(null);
-              alert('Application submitted successfully!');
-            }}
+            updateReferralStatus={updateReferralStatus}
           />
         )}
 

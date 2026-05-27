@@ -41,9 +41,12 @@ export class ReferralsController {
 
   async getAllReferrals(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+      const userId = Number(req.user.id);
+      
       const { search, company, role, location } = req.query;
       const referrals = await referralsService.getAllReferrals(
-        search as string, company as string, role as string, location as string
+        userId, search as string, company as string, role as string, location as string
       );
       res.status(200).json({ status: 'success', data: referrals });
     } catch (error) {

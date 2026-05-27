@@ -19,8 +19,8 @@ export class ReferralsService {
     return referral;
   }
 
-  async getAllReferrals(search?: string, company?: string, role?: string, location?: string) {
-    return await referralsRepository.getAllReferrals(search, company, role, location);
+  async getAllReferrals(userId: number, search?: string, company?: string, role?: string, location?: string) {
+    return await referralsRepository.getAllReferrals(userId, search, company, role, location);
   }
 
   async getReferralById(id: number) {
@@ -80,8 +80,8 @@ export class ReferralsService {
       throw new Error('Application not found');
     }
     
-    // Check if the user updating is the owner of the referral
-    if (application.referral_owner_id !== changedBy) {
+    // Check if the user updating is the owner of the referral or the applicant
+    if (application.referral_owner_id !== changedBy && application.applicant_id !== changedBy) {
       throw new Error('Unauthorized to update this application');
     }
 
@@ -96,19 +96,27 @@ export class ReferralsService {
       await referralsRepository.addLeaderboardScore(changedBy, points);
     }
 
-    // Notify the applicant
+    // Notify the other party
+    const targetUserId = application.referral_owner_id === changedBy 
+      ? application.applicant_id 
+      : application.referral_owner_id;
+
+    const notificationMessage = application.referral_owner_id === changedBy
+      ? `Your application for ${application.role_position} at ${application.company_name} is now: ${status}`
+      : `Applicant ${application.full_name} updated their status to: ${status} for ${application.role_position}`;
+
     await notificationsRepository.createNotification(
-      application.applicant_id,
+      targetUserId,
       'Application Status Updated',
-      `Your application for ${application.role_position} at ${application.company_name} is now: ${status}`,
+      notificationMessage,
       'referral_status_update',
       String(applicationId)
     );
 
-    socketService.sendNotificationToUser(application.applicant_id, {
+    socketService.sendNotificationToUser(targetUserId, {
       title: 'Application Status Updated',
       type: 'referral_status_update',
-      message: `Your application for ${application.role_position} at ${application.company_name} is now: ${status}`
+      message: notificationMessage
     });
 
     return updated;

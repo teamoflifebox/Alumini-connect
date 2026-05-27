@@ -50,16 +50,18 @@ export class ReferralsRepository {
     return result.rows[0];
   }
 
-  async getAllReferrals(search?: string, company?: string, role?: string, location?: string) {
+  async getAllReferrals(userId: number, search?: string, company?: string, role?: string, location?: string) {
     let query = `
-      SELECT r.*, u.name as posted_by_name, u.email as posted_by_email 
+      SELECT r.*, u.name as posted_by_name, u.email as posted_by_email,
+             a.id as user_application_id, a.current_status as user_application_status
       FROM referrals r
       JOIN users u ON r.user_id = u.id
+      LEFT JOIN referral_applications a ON a.referral_id = r.id AND a.applicant_id = $1
       WHERE 1=1
     `;
     
-    const values: any[] = [];
-    let paramIndex = 1;
+    const values: any[] = [userId];
+    let paramIndex = 2;
 
     if (search) {
       query += ` AND (r.company_name ILIKE $${paramIndex} OR r.role_position ILIKE $${paramIndex} OR r.job_description ILIKE $${paramIndex})`;

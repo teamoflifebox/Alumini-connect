@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Building2, Briefcase, Link as LinkIcon, MapPin, Calendar, Users, IndianRupee } from 'lucide-react';
-import { referralsApi, CreateReferralParams } from '../../../api/referrals.api';
+import { referralsApi, type CreateReferralParams } from '../../../api/referrals.api';
 
 interface CreateReferralModalProps {
   onClose: () => void;

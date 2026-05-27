@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, CheckCircle, Clock, XCircle, ChevronDown, User, ExternalLink } from 'lucide-react';
-import { referralsApi, ReferralApplication } from '../../../api/referrals.api';
+import { referralsApi, type ReferralApplication } from '../../../api/referrals.api';
 
 interface ApplicationTrackingListProps {
   referralId: number;
@@ -87,51 +87,42 @@ export default function ApplicationTrackingList({ referralId, referralTitle, onC
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-white/[0.02] text-muted-foreground text-xs uppercase font-semibold">
-                  <tr>
-                    <th className="px-6 py-4">Applicant</th>
-                    <th className="px-6 py-4">Contact</th>
-                    <th className="px-6 py-4">Resume</th>
-                    <th className="px-6 py-4">Applied On</th>
-                    <th className="px-6 py-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          {app.avatar_url ? (
-                            <img src={app.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                              <User size={16} className="text-muted-foreground" />
-                            </div>
-                          )}
-                          <div>
-                            <p className="font-bold text-white">{app.full_name}</p>
-                            <p className="text-xs text-muted-foreground">{app.course} • {app.year}</p>
+            <table className="w-full text-sm text-left">
+              <thead className="bg-white/[0.02] text-muted-foreground text-xs uppercase font-semibold">
+                <tr>
+                  <th className="px-6 py-4">Applicant</th>
+                  <th className="px-6 py-4">Contact</th>
+                  <th className="px-6 py-4">Applied On</th>
+                  <th className="px-6 py-4">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {applications.map(app => (
+                  <tr key={app.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {app.avatar_url ? (
+                          <img src={app.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                            {app.full_name.charAt(0)}
                           </div>
+                        )}
+                        <div>
+                          <p className="font-bold text-white">{app.full_name}</p>
+                          {app.course && <p className="text-[10px] text-muted-foreground">{app.course} • {app.year}</p>}
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-white font-medium">{app.email}</p>
-                        <p className="text-xs text-muted-foreground">{app.phone_number}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <a 
-                          href={app.resume_url} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="flex items-center gap-1 text-primary hover:text-white transition-colors text-xs font-bold bg-primary/10 px-3 py-1.5 rounded-lg w-fit"
-                        >
-                          View Resume <ExternalLink size={12} />
-                        </a>
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {new Date(app.created_at).toLocaleDateString()}
-                      </td>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs text-gray-300">
+                        <p>{app.email}</p>
+                        {app.phone_number && <p className="text-muted-foreground">{app.phone_number}</p>}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-muted-foreground text-xs">
+                      {new Date(app.created_at).toLocaleDateString()}
+                    </td>
                       <td className="px-6 py-4">
                         <div className="relative group">
                           <select 

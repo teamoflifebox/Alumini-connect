@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, User, Mail, Phone, Link as LinkIcon, BookOpen, GraduationCap, Award } from 'lucide-react';
-import { referralsApi, ApplyReferralParams, Referral } from '../../../api/referrals.api';
+import { referralsApi, type ApplyReferralParams, type Referral } from '../../../api/referrals.api';
 
 interface ApplyReferralModalProps {
   referral: Referral;

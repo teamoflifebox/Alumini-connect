@@ -20,6 +20,10 @@ export interface Referral {
   posted_by_name?: string;
   posted_by_email?: string;
   application_count?: string | number; // Returned as string from Postgres COUNT
+  
+  // Tracked via JOIN for current user
+  user_application_id?: number;
+  user_application_status?: string;
 }
 
 export interface ReferralApplication {
