@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, GraduationCap, ChevronRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { authApi } from '../api/auth.api';
+import { GoogleLogin } from '@react-oauth/google';
+import { useLinkedIn } from 'react-linkedin-login-oauth2';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -30,6 +32,20 @@ export default function AuthPage() {
     setErrorMsg('');
   }, [isLogin]);
 
+  const handleOAuthSuccess = (user: any, accessToken: string) => {
+    const mappedUser = { ...user, role: user.primary_role || user.role };
+    setAuth(mappedUser, accessToken);
+    navigate('/dashboard');
+  };
+
+  const handleLinkedInLogin = () => {
+    const clientId = '86aibzca4mk6qs';
+    const redirectUri = encodeURIComponent(`${window.location.origin}/linkedin`);
+    const scope = encodeURIComponent('openid profile email');
+    const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+    window.location.href = url;
+  };
+
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -45,15 +61,15 @@ export default function AuthPage() {
           throw new Error('Password must be at least 6 characters.');
         }
         // Call backend API
-        await authApi.register({
+        const response = await authApi.register({
           name: `${formData.firstName} ${formData.lastName}`.trim(),
           email: formData.email,
           password: formData.password,
           role: role
         });
         
-        // Registration successful -> go to pending verification page
-        navigate('/pending-verification');
+        // Registration successful -> automatically log them in
+        handleOAuthSuccess(response.data.data.user, response.data.data.accessToken);
 
       } else {
         // ── LOGIN ──────────────────────────────────────────────────
@@ -62,13 +78,7 @@ export default function AuthPage() {
           password: formData.password,
         });
 
-        const { user, accessToken } = response.data.data;
-        // The backend uses 'primary_role', but the frontend expects 'role'
-        const mappedUser = { ...user, role: user.primary_role || user.role };
-        setAuth(mappedUser, accessToken);
-        
-        // Redirect to dashboard router (will handle role-based redirection)
-        navigate('/dashboard');
+        handleOAuthSuccess(response.data.data.user, response.data.data.accessToken);
       }
     } catch (err: any) {
       console.error('AUTH ERROR:', err);
@@ -108,8 +118,6 @@ export default function AuthPage() {
             <h2 className="text-3xl font-bold mb-2">{isLogin ? 'Sign In' : 'Create Account'}</h2>
             <p className="text-muted-foreground">Manage your alumni and student network.</p>
           </div>
-
-          {/* No role selector needed - everyone signs up as a student */}
 
           <AnimatePresence mode="wait">
             {errorMsg && (
@@ -174,6 +182,51 @@ export default function AuthPage() {
               )}
             </button>
           </form>
+
+          {/* OAUTH SECTION */}
+          <div className="mt-8">
+            <div className="relative flex py-5 items-center">
+              <div className="flex-grow border-t border-white/10"></div>
+              <span className="flex-shrink-0 mx-4 text-muted-foreground text-sm font-medium">Or continue with</span>
+              <div className="flex-grow border-t border-white/10"></div>
+            </div>
+            
+            <div className="flex flex-col gap-3 mt-4">
+              <div className="w-full flex justify-center [&>div]:w-full [&>div>div]:!w-full [&>div>div]:!bg-[#1c1f26] [&>div>div]:!text-white [&>div>div]:!border-white/5">
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      setIsLoading(true);
+                      const response = await authApi.googleLogin(credentialResponse.credential!);
+                      handleOAuthSuccess(response.data.data.user, response.data.data.accessToken);
+                    } catch (err: any) {
+                      setErrorMsg(err.response?.data?.message || 'Google authentication failed');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  onError={() => {
+                    setErrorMsg('Google Login Failed');
+                  }}
+                  useOneTap
+                  theme="filled_black"
+                  shape="rectangular"
+                  size="large"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLinkedInLogin}
+                className="w-full flex items-center justify-center gap-3 bg-[#0a66c2] hover:bg-[#004182] text-white font-bold py-3 px-4 rounded-[4px] transition-all h-[40px]"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                Sign in with LinkedIn
+              </button>
+            </div>
+          </div>
 
           <p className="text-center mt-8 text-sm text-muted-foreground">
             {isLogin ? "New here? " : "Already joined? "}

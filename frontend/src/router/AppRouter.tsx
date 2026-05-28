@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 // Public pages (always loaded)
 import LandingPage from '../pages/LandingPage';
 import AuthPage from '../pages/AuthPage';
+import LinkedInCallback from '../pages/LinkedInCallback';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
 
@@ -62,6 +63,7 @@ export const AppRouter = () => {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/pending-verification" element={<PendingVerificationPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/linkedin" element={<LinkedInCallback />} />
 
         {/* ─── Role Redirect (after login) ───────────────────── */}
         <Route path="/dashboard" element={<RoleRedirect />} />
