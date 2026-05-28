@@ -25,4 +25,12 @@ export const authApi = {
   /** Reset password with token */
   resetPassword: (token: string, password: string) =>
     api.post('/auth/reset-password', { token, password }),
+
+  /** Google OAuth Login */
+  googleLogin: (idToken: string) =>
+    api.post<{ data: AuthResponse }>('/auth/google', { idToken }),
+
+  /** LinkedIn OAuth Login */
+  linkedinLogin: (code: string, redirectUri: string) =>
+    api.post<{ data: AuthResponse }>('/auth/linkedin', { code, redirectUri }),
 };

@@ -93,13 +93,49 @@ export class AuthOAuthService {
     return authService.buildAuthResponseForUser(user);
   }
 
-  async linkedinLogin(accessToken: string): Promise<AuthResponse> {
+  async linkedinLogin(code: string, redirectUri: string): Promise<AuthResponse> {
+    const clientId = env.LINKEDIN_CLIENT_ID;
+    const clientSecret = env.LINKEDIN_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      throw new AppError('LinkedIn OAuth is not configured', 500);
+    }
+
+    // 1. Exchange code for access token
+    const tokenParams = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      client_secret: clientSecret,
+    });
+
+    const tokenRes = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: tokenParams.toString(),
+    });
+
+    if (!tokenRes.ok) {
+      const errorText = await tokenRes.text();
+      console.error('LinkedIn token exchange failed:', errorText);
+      throw new AppError('Failed to exchange LinkedIn code for token', 401);
+    }
+
+    const tokenData = await tokenRes.json() as any;
+    const accessToken = tokenData.access_token;
+
+    if (!accessToken) {
+      throw new AppError('No access token returned from LinkedIn', 401);
+    }
+
+    // 2. Fetch user profile
     const profileRes = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!profileRes.ok) {
-      throw new AppError('Invalid LinkedIn access token', 401);
+      throw new AppError('Failed to fetch LinkedIn profile', 401);
     }
 
     const profile = (await profileRes.json()) as LinkedInProfile;

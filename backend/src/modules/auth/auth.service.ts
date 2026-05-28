@@ -155,7 +155,7 @@ export class AuthService {
       email,
       passwordHash,
       role,
-      isVerified: false,
+      isVerified: !authVerificationService.shouldEnforceVerification(role),
       provider: 'local',
       company,
       graduation_year,
