@@ -10,6 +10,10 @@ export class ProfilesService {
   async updateProfile(userId: string, data: UpdateProfileDTO) {
     return await profilesRepository.updateProfile(userId, data);
   }
+
+  async searchProfiles(filters: any, limit: number, offset: number, currentUserId?: string) {
+    return await profilesRepository.searchProfiles(filters, limit, offset, currentUserId);
+  }
 }
 
 export const profilesService = new ProfilesService();

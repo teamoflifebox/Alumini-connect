@@ -3,6 +3,7 @@ import pool from './config/database';
 import { env } from './config/env';
 import { connectRedis } from './config/redis';
 import { initMeilisearch } from './core/config/meilisearch';
+import { initSocket } from './core/socket';
 
 const PORT = env.PORT;
 
@@ -27,6 +28,8 @@ const startServer = async () => {
     const server = app.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT}`);
     });
+
+    initSocket(server);
 
     server.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
