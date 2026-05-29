@@ -10,6 +10,8 @@ import CommunityTab from '../../shared/components/CommunityTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
+import AdminReferralsTab from '../components/AdminReferralsTab';
+import AdminSettingsTab from '../components/AdminSettingsTab';
 
 interface Profile {
   id: string;
@@ -29,10 +31,6 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, students: 0, alumni: 0, recruiters: 0 });
   const [showSignOutModal, setShowSignOutModal] = useState(false);
 
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
-
   const fetchProfiles = async () => {
     setIsLoading(true);
     try {
@@ -50,6 +48,10 @@ export default function AdminDashboard() {
     }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
 
   const deleteUser = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
@@ -76,6 +78,7 @@ export default function AdminDashboard() {
     { id: 'overview', label: 'Overview', icon: BarChart2 },
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'jobs', label: 'Job Postings', icon: Briefcase },
+    { id: 'referrals', label: 'Referrals', icon: Users },
     { id: 'events', label: 'Events', icon: Award },
     { id: 'donations', label: 'Donations & Campaigns', icon: GraduationCap },
     { id: 'mentorship', label: 'Mentorship', icon: Users },
@@ -270,6 +273,7 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
+          {activeTab === 'referrals' && <AdminReferralsTab />}
           {activeTab === 'events' && <EventsTab />}
           {activeTab === 'donations' && <DonationsTab />}
           {activeTab === 'mentorship' && <MentorshipTab />}
@@ -287,25 +291,7 @@ export default function AdminDashboard() {
           )}
 
           {/* Settings Tab */}
-          {activeTab === 'settings' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              {[
-                { label: 'Allow New Registrations', desc: 'Toggle whether new users can sign up on this platform.' },
-                { label: 'Maintenance Mode', desc: 'Temporarily take the platform offline for updates.' },
-                { label: 'Email Verification Required', desc: 'Require users to verify email before accessing the dashboard.' },
-              ].map((s, i) => (
-                <div key={i} className="flex items-center justify-between p-6 border border-white/5 rounded-2xl bg-[#15171c] hover:bg-white/[0.03] transition-all">
-                  <div>
-                    <h4 className="font-bold text-white mb-1">{s.label}</h4>
-                    <p className="text-sm text-muted-foreground">{s.desc}</p>
-                  </div>
-                  <div className="w-12 h-6 bg-primary/30 rounded-full relative cursor-pointer border border-primary/30">
-                    <div className="w-4 h-4 bg-primary rounded-full absolute right-1 top-1" />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          )}
+          {activeTab === 'settings' && <AdminSettingsTab />}
 
         </div>
       </main>

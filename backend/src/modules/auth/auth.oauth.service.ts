@@ -6,6 +6,9 @@ import { AppError } from '../../utils/AppError';
 import { env } from '../../config/env';
 import { generateSecureToken } from '../../utils/token';
 import { authService } from './auth.service';
+import { userManagementRepository } from '../user-management/user-management.repository';
+import { notificationsRepository } from '../notifications/notifications.repository';
+import { socketService } from '../../services/socket.service';
 
 interface LinkedInProfile {
   sub: string;
@@ -51,7 +54,7 @@ export class AuthOAuthService {
       return updated!;
     }
 
-    return authRepository.createUser({
+    const newUser = await authRepository.createUser({
       name: data.name,
       email: data.email,
       passwordHash: await this.randomPasswordHash(),
@@ -61,6 +64,37 @@ export class AuthOAuthService {
       providerId: data.providerId,
       avatarUrl: data.avatarUrl,
     });
+
+    try {
+      const admins = await userManagementRepository.getUsersByRoles(['admin']);
+      const adminIds = admins.map(a => a.id);
+      
+      if (adminIds.length > 0) {
+        const title = 'New User Joined';
+        const message = `${newUser.name} has joined the platform via ${data.provider}.`;
+        const type = 'new_user';
+        
+        const insertedIds = await notificationsRepository.createBulkNotifications(
+          adminIds,
+          title,
+          message,
+          type,
+          String(newUser.id)
+        );
+        
+        insertedIds.forEach(id => {
+          socketService.sendNotificationToUser(id, {
+            title,
+            type,
+            message
+          });
+        });
+      }
+    } catch (notifErr) {
+      console.error('Failed to notify admins of new OAuth user:', notifErr);
+    }
+
+    return newUser;
   }
 
   async googleLogin(idToken: string): Promise<AuthResponse> {

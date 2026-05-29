@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, CheckCircle, Clock, XCircle, ChevronDown, User, ExternalLink } from 'lucide-react';
 import { referralsApi, type ReferralApplication } from '../../../api/referrals.api';
+import { useAuthStore } from '../../../store/authStore';
 
 interface ApplicationTrackingListProps {
   referralId: number;
@@ -24,6 +25,7 @@ export default function ApplicationTrackingList({ referralId, referralTitle, onC
   const [applications, setApplications] = useState<ReferralApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchApplications();
@@ -128,7 +130,8 @@ export default function ApplicationTrackingList({ referralId, referralTitle, onC
                           <select 
                             value={app.current_status}
                             onChange={(e) => updateStatus(app.id, e.target.value)}
-                            className={`appearance-none px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer pr-8 ${getStatusColor(app.current_status)}`}
+                            disabled={user?.role === 'admin'}
+                            className={`appearance-none px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer pr-8 ${getStatusColor(app.current_status)} ${user?.role === 'admin' ? 'opacity-70 cursor-not-allowed' : ''}`}
                           >
                             {STATUS_OPTIONS.map(opt => (
                               <option key={opt} value={opt} className="bg-[#1c1f26] text-white">{opt}</option>

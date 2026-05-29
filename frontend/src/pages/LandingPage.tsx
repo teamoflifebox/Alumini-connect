@@ -5,6 +5,8 @@ import {
   ArrowRight, Users, Briefcase, GraduationCap, TrendingUp, 
   HeartHandshake, Award, Search, Zap, CheckCircle2, Shield, ChevronRight
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { statsApi, type LandingStats } from '../api/stats.api';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 50 },
@@ -22,6 +24,13 @@ const scaleIn: Variants = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [stats, setStats] = useState<LandingStats | null>(null);
+
+  useEffect(() => {
+    statsApi.getLandingStats()
+      .then(res => setStats(res.data.data))
+      .catch(err => console.error('Failed to load stats', err));
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -32,7 +41,7 @@ export default function LandingPage() {
             <div className="bg-primary text-white p-2 rounded-xl">
               <GraduationCap size={24} />
             </div>
-            <span className="text-xl font-bold tracking-tight">Gnan-AI Alumni Connect</span>
+            <span className="text-xl font-bold tracking-tight">Alumni Connect</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
             <a href="#features" className="hover:text-primary transition-colors">Features</a>
@@ -61,14 +70,14 @@ export default function LandingPage() {
               </motion.div>
               
               <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
-                Empowering Futures Through <br className="hidden md:block"/>
+                Ignite Your Legacy Through <br className="hidden md:block"/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-brand-600">
-                   Connection & Mentorship
+                   Meaningful Connections
                 </span>
               </motion.h1>
               
               <motion.p variants={fadeUp} className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-                A unified ecosystem bringing together students, alumni, and recruiters. Find mentors, hire top talent, and fund the next generation of leaders.
+                Break the boundaries between campus and career. Alumni Connect is the ultimate unified platform where students launch their dreams, alumni leave a lasting impact, and recruiters discover top-tier talent.
               </motion.p>
               
               <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -117,10 +126,10 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5 text-center">
               {[
-                { label: 'Active Users', value: '50K+' },
-                { label: 'Mentorships', value: '12K+' },
-                { label: 'Jobs Placed', value: '8,500' },
-                { label: 'Scholarship Funds', value: '$2.5M' },
+                { label: 'Active Users', value: stats ? `${stats.activeUsers}+` : '...' },
+                { label: 'Mentorships', value: stats ? `${stats.mentorships}+` : '...' },
+                { label: 'Jobs Placed', value: stats ? `${stats.jobsPlaced}` : '...' },
+                { label: 'Scholarship Funds', value: stats ? `$${(stats.scholarshipFunds / 1000).toFixed(0)}K+` : '...' },
               ].map((stat, i) => (
                 <div key={i} className="flex flex-col items-center justify-center">
                   <div className="text-3xl md:text-5xl font-bold text-white mb-2">{stat.value}</div>
@@ -135,18 +144,18 @@ export default function LandingPage() {
         <section id="features" className="py-24 md:py-32 relative">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Everything you need to grow and give back</h2>
-              <p className="text-lg text-muted-foreground">A robust feature set designed for networking, career advancement, and philanthropic impact.</p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Unleash the Power of Your Network</h2>
+              <p className="text-lg text-muted-foreground">Purpose-built tools designed to accelerate careers, foster lifelong bonds, and drive transparent philanthropy.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { icon: <HeartHandshake />, title: "Mentorship Matching", desc: "AI-driven algorithms pair students with the perfect alumni mentor based on career goals." },
-                { icon: <Briefcase />, title: "Exclusive Job Portal", desc: "Access verified job listings and referral opportunities posted directly by alumni." },
-                { icon: <Search />, title: "Advanced Search", desc: "Find peers, mentors, or candidates using advanced filters across skills, location, and industry." },
-                { icon: <Award />, title: "Scholarship System", desc: "End-to-end transparent platform for creating, funding, and applying for scholarships." },
-                { icon: <TrendingUp />, title: "Impact Tracking", desc: "Donors see exactly where their funds go with verifiable tracking and success stories." },
-                { icon: <Shield />, title: "Verified Enterprise Security", desc: "Role-based access, JWT auth, and rigid verification keeps the network secure." },
+                { icon: <HeartHandshake />, title: "Smart Mentorship", desc: "Our intelligent matching engine pairs driven students with seasoned alumni to navigate the journey from classroom to boardroom." },
+                { icon: <Briefcase />, title: "Direct Referrals & Jobs", desc: "Bypass the resume black hole. Access exclusive opportunities and direct employee referrals from alumni at top companies." },
+                { icon: <Search />, title: "Dynamic Directory", desc: "Instantly discover and connect with community members worldwide using powerful filters for industry, expertise, and location." },
+                { icon: <Award />, title: "Revolutionary Scholarships", desc: "A frictionless, transparent ecosystem empowering alumni to fund education and students to easily access financial aid." },
+                { icon: <TrendingUp />, title: "Verifiable Impact", desc: "Experience real-time transparency. Donors track their contributions to actual student success stories and institutional growth." },
+                { icon: <Shield />, title: "Fortified Security", desc: "Built with enterprise-grade encryption and stringent role-based access, ensuring your community data remains completely secure." },
               ].map((feature, i) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
@@ -190,9 +199,9 @@ export default function LandingPage() {
               </motion.div>
               <div className="order-1 md:order-2">
                 <div className="text-primary font-semibold tracking-wider uppercase mb-2">For Alumni</div>
-                <h3 className="text-3xl md:text-4xl font-bold mb-6">Give Back & Expand Your Network</h3>
+                <h3 className="text-3xl md:text-4xl font-bold mb-6">Shape the Leaders of Tomorrow</h3>
                 <ul className="space-y-4 mb-8">
-                  {['Offer mentorship to ambitious students', 'Post exclusive job opportunities & referrals', 'Donate directly to impactful scholarships', 'Connect with fellow industry leaders'].map((item, i) => (
+                  {['Guide ambitious students through one-on-one mentorship', 'Champion talent by posting exclusive referrals and jobs', 'Leave a legacy by funding high-impact student scholarships', 'Forge powerful connections with fellow industry trailblazers'].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <CheckCircle2 className="text-primary shrink-0 mt-1" size={20} />
                       <span className="text-muted-foreground text-lg">{item}</span>
@@ -209,9 +218,9 @@ export default function LandingPage() {
             <div className="grid md:grid-cols-2 gap-12 items-center mt-12 md:mt-24">
               <div>
                 <div className="text-primary font-semibold tracking-wider uppercase mb-2">For Students</div>
-                <h3 className="text-3xl md:text-4xl font-bold mb-6">Kickstart Your Future</h3>
+                <h3 className="text-3xl md:text-4xl font-bold mb-6">Launch Your Career Trajectory</h3>
                 <ul className="space-y-4 mb-8">
-                  {['Find industry mentors to guide your career', 'Apply for verified scholarships & financial aid', 'Discover exclusive job postings before anyone else', 'Build a compelling profile to attract recruiters'].map((item, i) => (
+                  {['Gain insider knowledge from elite alumni mentors', 'Secure essential funding through streamlined scholarship applications', 'Unlock hidden job markets with direct alumni referrals', 'Showcase your achievements to top-tier enterprise recruiters'].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <CheckCircle2 className="text-primary shrink-0 mt-1" size={20} />
                       <span className="text-muted-foreground text-lg">{item}</span>
@@ -250,9 +259,9 @@ export default function LandingPage() {
               </motion.div>
               <div className="order-1 md:order-2">
                 <div className="text-primary font-semibold tracking-wider uppercase mb-2">For Recruiters</div>
-                <h3 className="text-3xl md:text-4xl font-bold mb-6">Hire Top Institution Talent</h3>
+                <h3 className="text-3xl md:text-4xl font-bold mb-6">Discover Extraordinary Talent</h3>
                 <ul className="space-y-4 mb-8">
-                  {['Post job openings directly to targeted majors', 'Search candidates by skills, GPA, & projects', 'Manage applications easily in-platform', 'Host virtual campus drives'].map((item, i) => (
+                  {['Source pre-vetted candidates directly from specific academic programs', 'Leverage precision filters to find the exact skills and experience you need', 'Streamline your hiring pipeline with our integrated application manager', 'Engage directly with the brightest emerging minds'].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <CheckCircle2 className="text-primary shrink-0 mt-1" size={20} />
                       <span className="text-muted-foreground text-lg">{item}</span>
@@ -275,45 +284,48 @@ export default function LandingPage() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 text-primary mb-6">
                 <Award size={32} />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Transparent Scholarship System</h2>
-              <p className="text-lg text-muted-foreground">A rigorous, end-to-end framework enabling donors to fund the future and giving students the financial aid they deserve without the red tape.</p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">A New Era of Philanthropy</h2>
+              <p className="text-lg text-muted-foreground">We've completely reimagined the scholarship process. A seamless, transparent engine that connects donor generosity directly with student potential, eliminating the bureaucracy.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Box 1 */}
               <div className="bg-[#111318] border border-white/5 rounded-2xl p-8 hover:border-primary/30 transition-colors">
-                <h4 className="text-xl font-semibold mb-4 text-white">Create & Fund</h4>
+                <h4 className="text-xl font-semibold mb-4 text-white">Active Campaigns</h4>
                 <p className="text-sm text-muted-foreground mb-6">Donors and alumni can establish named scholarships, set strict eligibility criteria (e.g., GPA, major, income), and fund them securely.</p>
                 <div className="space-y-3">
-                  <div className="bg-white/5 rounded px-3 py-2 text-sm flex justify-between items-center">
-                    <span className="text-white/70">"Tech Women Fund"</span>
-                    <span className="text-primary font-medium">$10,000</span>
-                  </div>
-                  <div className="bg-white/5 rounded px-3 py-2 text-sm flex justify-between items-center">
-                    <span className="text-white/70">"First-Gen Engineers"</span>
-                    <span className="text-primary font-medium">$5,000</span>
-                  </div>
+                  {stats?.activeCampaigns?.map((campaign, idx) => (
+                    <div key={idx} className="bg-white/5 rounded px-3 py-2 text-sm flex justify-between items-center">
+                      <span className="text-white/70">"{campaign.title}"</span>
+                      <span className="text-primary font-medium">${campaign.raised.toLocaleString()}</span>
+                    </div>
+                  ))}
+                  {(!stats?.activeCampaigns || stats.activeCampaigns.length === 0) && (
+                    <div className="bg-white/5 rounded px-3 py-2 text-sm flex justify-between items-center">
+                      <span className="text-white/70">Loading...</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
                {/* Box 2 */}
                <div className="bg-[#111318] border border-white/5 rounded-2xl p-8 hover:border-primary/30 transition-colors shadow-[0_0_40px_rgba(255,98,10,0.1)] relative transform md:-translate-y-4">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
-                <h4 className="text-xl font-semibold mb-4 text-white">Seamless Applications</h4>
-                <p className="text-sm text-muted-foreground mb-6">Students apply instantly. Academic records, income proof, and SOPS are uploaded and verified on a single secure dashboard.</p>
+                <h4 className="text-xl font-semibold mb-4 text-white">Frictionless Applications</h4>
+                <p className="text-sm text-muted-foreground mb-6">Say goodbye to endless paperwork. Students apply with a single click, with academic and financial data securely verified in real-time.</p>
                 <div className="w-full h-32 border border-white/10 rounded-xl bg-background flex flex-col justify-center items-center gap-2">
                   <HeartHandshake className="text-primary" size={32} />
-                  <span className="text-xs text-muted-foreground">Verification in Progress</span>
+                  <span className="text-xs text-muted-foreground">{stats?.verificationProgress || 0}% Verified Users</span>
                   <div className="w-3/4 h-1 bg-white/10 rounded-full overflow-hidden mt-2">
-                    <div className="w-2/3 h-full bg-primary rounded-full blur-[1px]" />
+                    <div className="h-full bg-primary rounded-full blur-[1px]" style={{ width: `${stats?.verificationProgress || 0}%` }} />
                   </div>
                 </div>
               </div>
 
                {/* Box 3 */}
                <div className="bg-[#111318] border border-white/5 rounded-2xl p-8 hover:border-primary/30 transition-colors">
-                <h4 className="text-xl font-semibold mb-4 text-white">Admin Approval & Impact</h4>
-                <p className="text-sm text-muted-foreground mb-6">Admins score applications based on predefined metrics. Funds are disbursed accurately, and donors receive an impact report.</p>
+                <h4 className="text-xl font-semibold mb-4 text-white">Data-Driven Disbursement</h4>
+                <p className="text-sm text-muted-foreground mb-6">Smart algorithms assist admins in evaluating candidates fairly. Funds are allocated with absolute precision, and donors receive vivid impact reports.</p>
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2 text-white/80"><CheckCircle2 size={14} className="text-green-500" /> Automated Scoring</li>
                   <li className="flex items-center gap-2 text-white/80"><CheckCircle2 size={14} className="text-green-500" /> Fraud Detection</li>
@@ -332,9 +344,9 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
           
           <div className="max-w-4xl mx-auto px-6 relative z-10 text-center text-white">
-            <h2 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Ready to bridge the gap?</h2>
+            <h2 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Ready to Transform Your Future?</h2>
             <p className="text-xl md:text-2xl text-white/80 mb-10">
-              Join the institutional network that drives success, philanthropy, and career growth.
+              Join the most innovative institutional network. Where ambition meets opportunity, and success is shared.
             </p>
             <button onClick={() => navigate('/register')} className="bg-white text-primary hover:bg-neutral-100 px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl">
               Create Your Free Account
@@ -351,7 +363,7 @@ export default function LandingPage() {
               <div className="bg-primary text-white p-1.5 rounded-lg">
                 <GraduationCap size={20} />
               </div>
-              <span className="text-lg font-bold">Gnan-AI</span>
+              <span className="text-lg font-bold">Alumni Connect</span>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
               A product of <strong>LifeBox NextGen</strong>. The premier platform converging alumni success, student ambition, and institutional growth under one beautiful interface.
@@ -390,17 +402,11 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 border-t border-white/10 pt-8 text-center text-sm text-muted-foreground">
-          © 2026 Gnan-AI, a product of LifeBox NextGen. All rights reserved. Designed for excellence.
+          © 2026 Alumni Connect, a product of LifeBox NextGen. All rights reserved. Designed for excellence.
         </div>
       </footer>
     </div>
   );
 }
 
-function StarIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-    </svg>
-  )
-}
+

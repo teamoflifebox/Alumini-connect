@@ -1,5 +1,6 @@
 import { env } from '../config/env';
 import { isMailConfigured, mailTransporter } from '../config/mail';
+import pool from '../core/config/db';
 
 interface SendEmailOptions {
   to: string;
@@ -28,6 +29,20 @@ export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
     html: options.html,
     text: options.text,
   });
+};
+
+export const sendNotificationEmail = async (userId: number | string, options: SendEmailOptions): Promise<void> => {
+  // Check if user has opted out of email notifications
+  const result = await pool.query('SELECT email_notifications FROM user_settings WHERE user_id = $1', [userId]);
+  
+  // If settings exist and email_notifications is false, abort dispatch
+  if (result.rows.length > 0 && result.rows[0].email_notifications === false) {
+    console.log(`--- EMAIL ABORTED: User ${userId} has disabled email notifications ---`);
+    return;
+  }
+
+  // Otherwise, proceed to send
+  await sendEmail(options);
 };
 
 export const passwordResetEmailTemplate = (resetUrl: string, name: string) => ({

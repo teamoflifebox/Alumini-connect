@@ -197,6 +197,34 @@ export class AuthController {
       next(error);
     }
   }
+
+  async deleteAccount(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user?.id) {
+        throw new AppError('Unauthorized', 401);
+      }
+      await authService.deleteAccount(req.user.id);
+      clearRefreshCookie(res);
+      res.status(200).json({ status: 'success', message: 'Account deleted successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async changePassword(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user?.id) {
+        throw new AppError('Unauthorized', 401);
+      }
+      await authService.changePassword(
+        req.user.id,
+        req.body.currentPassword,
+        req.body.newPassword
+      );
+      res.status(200).json({ status: 'success', message: 'Password changed successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const authController = new AuthController();

@@ -12,6 +12,7 @@ import {
   loginSchema,
   resetPasswordSchema,
   registerSchema,
+  changePasswordSchema,
 } from './auth.schema';
 
 const router = Router();
@@ -77,6 +78,13 @@ router.post(
   asyncHandler(authController.resetPassword.bind(authController))
 );
 
+router.put(
+  '/change-password',
+  authenticate,
+  validate(changePasswordSchema),
+  asyncHandler(authController.changePassword.bind(authController))
+);
+
 // Email verification
 router.post(
   '/send-verification',
@@ -105,5 +113,7 @@ router.post(
 router.post('/refresh', asyncHandler(authController.refresh.bind(authController)));
 
 router.post('/logout', authenticate, asyncHandler(authController.logout.bind(authController)));
+
+router.delete('/me', authenticate, asyncHandler(authController.deleteAccount.bind(authController)));
 
 export default router;

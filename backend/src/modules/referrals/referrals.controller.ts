@@ -138,7 +138,7 @@ export class ReferralsController {
       const ownerId = Number(req.user.id);
       const referralId = Number(req.params.id);
       
-      const applications = await referralsService.getApplicationsForReferral(referralId, ownerId);
+      const applications = await referralsService.getApplicationsForReferral(referralId, ownerId, req.user.primary_role);
       res.status(200).json({ status: 'success', data: applications });
     } catch (error: any) {
       if (error.message.includes('Unauthorized')) {

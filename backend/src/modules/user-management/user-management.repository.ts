@@ -48,6 +48,15 @@ export class UserManagementRepository {
     return result.rows;
   }
 
+  async getUsersByRoles(roles: UserRole[]) {
+    if (!roles || roles.length === 0) return [];
+    const result = await pool.query(
+      'SELECT id, name, email, primary_role as role, is_verified, provider, created_at, updated_at FROM users WHERE primary_role = ANY($1::text[]) ORDER BY created_at DESC',
+      [roles]
+    );
+    return result.rows;
+  }
+
   async deleteUser(userId: string) {
     await pool.query('DELETE FROM users WHERE id = $1', [userId]);
   }
