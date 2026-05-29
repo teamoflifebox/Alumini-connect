@@ -6,6 +6,8 @@ import jobsRoutes from '../modules/jobs/jobs.routes';
 import rbacRoutes from '../modules/rbac/rbac.routes';
 import eventsRoutes from '../modules/events/events.routes';
 import donationsRoutes from '../modules/donations/donations.routes';
+import communityRoutes from '../modules/community/community.routes';
+import messagingRoutes from '../modules/messaging/messaging.routes';
 import mentorshipRoutes from '../modules/mentorship/mentorship.routes';
 import notificationsRoutes from '../modules/notifications/notifications.routes';
 import referralsRoutes from '../modules/referrals/referrals.routes';
@@ -41,6 +43,12 @@ router.use('/events', eventsRoutes);
 
 // Donations
 router.use('/donations', donationsRoutes);
+
+// Community
+router.use('/community', communityRoutes);
+
+// Messaging
+router.use('/messaging', messagingRoutes);
 
 // Mentorship Sessions & Search
 router.use('/mentorship', mentorshipRoutes);

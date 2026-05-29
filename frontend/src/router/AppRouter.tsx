@@ -34,6 +34,11 @@ const PendingVerificationPage = lazy(() => import('../pages/PendingVerificationP
 const UnauthorizedPage = lazy(() => import('../pages/UnauthorizedPage'));
 const EventsPage = lazy(() => import('../features/events/pages/EventsPage'));
 
+// Community
+const AlumniDirectory = lazy(() => import('../features/community/pages/AlumniDirectory').then(m => ({ default: m.AlumniDirectory })));
+const FeedPage = lazy(() => import('../features/community/pages/FeedPage').then(m => ({ default: m.FeedPage })));
+const MessagingPage = lazy(() => import('../features/community/pages/MessagingPage').then(m => ({ default: m.MessagingPage })));
+
 /** Redirect logged-in users to their role-based dashboard */
 const RoleRedirect = () => {
   const { user, isAuthenticated } = useAuth();
@@ -94,6 +99,11 @@ export const AppRouter = () => {
           <Route path="/jobs/post" element={<RecruiterPostJob />} />
           <Route path="/campaigns" element={<DonorCampaigns />} />
           <Route path="/events" element={<EventsPage />} />
+          
+          {/* Community Features */}
+          <Route path="/community/directory" element={<AlumniDirectory />} />
+          <Route path="/community/feed" element={<FeedPage />} />
+          <Route path="/community/messages" element={<MessagingPage />} />
         </Route>
 
         {/* ─── Catch All ─────────────────────────────────────── */}

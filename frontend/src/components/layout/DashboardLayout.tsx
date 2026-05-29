@@ -22,11 +22,16 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
       return [
         { label: 'Dashboard', path: '/admin/dashboard' },
         { label: 'Users', path: '/admin/users' },
+        { label: 'Directory', path: '/community/directory' },
+        { label: 'Feed', path: '/community/feed' },
       ];
     }
     if (isStudent) {
       return [
         { label: 'Dashboard', path: '/student/dashboard' },
+        { label: 'Feed', path: '/community/feed' },
+        { label: 'Directory', path: '/community/directory' },
+        { label: 'Messages', path: '/community/messages' },
         { label: 'Jobs', path: '/student/jobs' },
         { label: 'Mentorship', path: '/student/mentorship' },
         { label: 'Events', path: '/events' },
@@ -35,6 +40,9 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
     if (isAlumni) {
       return [
         { label: 'Dashboard', path: '/alumni/dashboard' },
+        { label: 'Feed', path: '/community/feed' },
+        { label: 'Directory', path: '/community/directory' },
+        { label: 'Messages', path: '/community/messages' },
         { label: 'Referrals', path: '/alumni/jobs' },
         { label: 'Mentorship', path: '/alumni/mentorship' },
         { label: 'Events', path: '/events' },

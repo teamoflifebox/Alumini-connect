@@ -10,9 +10,15 @@ import ReferralsTab from '../../shared/components/ReferralsTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
+import DirectoryTab from '../../shared/components/DirectoryTab';
+import MessagingTab from '../../shared/components/MessagingTab';
+import { MessageSquare, Users as UsersIcon } from 'lucide-react';
+import { useCommunityStore } from '../../community/store';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, logout, setAuth } = useAuth();
   
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -69,6 +75,36 @@ export default function StudentDashboard() {
   const handleSkipOnboarding = () => {
     setShowOnboarding(false);
   };
+
+  useEffect(() => {
+    const handleNavigate = (e: any) => {
+      if (e.detail) {
+        setActiveTab(e.detail);
+      }
+    };
+    window.addEventListener('navigate-tab', handleNavigate);
+    return () => window.removeEventListener('navigate-tab', handleNavigate);
+  }, []);
+
+  const { connectSocket, disconnectSocket, socket } = useCommunityStore();
+
+  useEffect(() => {
+    connectSocket();
+    return () => disconnectSocket();
+  }, [connectSocket, disconnectSocket]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNotification = (notif: any) => {
+      // Refresh connection data on connection events
+      if (notif.type === 'connection_accepted' || notif.type === 'connection_request') {
+        queryClient.invalidateQueries({ queryKey: ['connections'] });
+        alert(notif.message);
+      }
+    };
+    socket.on('notification', handleNotification);
+    return () => { socket.off('notification', handleNotification); }
+  }, [socket, queryClient]);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-foreground flex relative">
@@ -177,7 +213,9 @@ export default function StudentDashboard() {
             { id: 'profile', label: 'My Profile', icon: UserCircle },
             { id: 'opportunities', label: 'Opportunity Hub', icon: Briefcase },
             { id: 'mentorship', label: 'Mentorship', icon: Users },
-            { id: 'community', label: 'Community', icon: Users },
+            { id: 'directory', label: 'Directory', icon: UsersIcon },
+            { id: 'community', label: 'Community Feed', icon: Users },
+            { id: 'messages', label: 'Messages', icon: MessageSquare },
             { id: 'events', label: 'Events', icon: Award },
             { id: 'referrals', label: 'Referrals', icon: Users },
             { id: 'donations', label: 'Donations', icon: Award },
@@ -504,6 +542,8 @@ export default function StudentDashboard() {
 
            {activeTab === 'mentorship' && <MentorshipTab />}
            {activeTab === 'community' && <CommunityTab />}
+           {activeTab === 'directory' && <DirectoryTab />}
+           {activeTab === 'messages' && <MessagingTab />}
            {activeTab === 'events' && <EventsTab />}
            {activeTab === 'referrals' && <ReferralsTab />}
            {activeTab === 'donations' && <DonationsTab />}
