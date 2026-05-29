@@ -31,11 +31,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      // Only persist user and auth state, NOT the token (security best practice)
-      // The accessToken is held in memory; the refreshToken is in an HttpOnly cookie
+      // Persist user, auth state, and the accessToken so it survives page refreshes.
+      // The refreshToken remains in an HttpOnly cookie for security.
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
+        accessToken: state.accessToken,
       }),
     }
   )

@@ -6,6 +6,9 @@ import jobsRoutes from '../modules/jobs/jobs.routes';
 import rbacRoutes from '../modules/rbac/rbac.routes';
 import eventsRoutes from '../modules/events/events.routes';
 import donationsRoutes from '../modules/donations/donations.routes';
+import mentorshipRoutes from '../modules/mentorship/mentorship.routes';
+import notificationsRoutes from '../modules/notifications/notifications.routes';
+import referralsRoutes from '../modules/referrals/referrals.routes';
 
 /**
  * Central API route registration
@@ -38,5 +41,14 @@ router.use('/events', eventsRoutes);
 
 // Donations
 router.use('/donations', donationsRoutes);
+
+// Mentorship Sessions & Search
+router.use('/mentorship', mentorshipRoutes);
+
+// Notifications
+router.use('/notifications', notificationsRoutes);
+
+// Referrals
+router.use('/referrals', referralsRoutes);
 
 export default router;

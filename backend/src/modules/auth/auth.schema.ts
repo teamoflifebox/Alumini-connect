@@ -29,7 +29,8 @@ export const googleAuthSchema = z.object({
 });
 
 export const linkedinAuthSchema = z.object({
-  accessToken: z.string().min(1, 'LinkedIn accessToken is required'),
+  code: z.string().min(1, 'LinkedIn code is required'),
+  redirectUri: z.string().min(1, 'LinkedIn redirectUri is required'),
 });
 
 export const registerSchema = z.object({
