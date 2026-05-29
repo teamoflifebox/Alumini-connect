@@ -135,6 +135,18 @@ export class ProfilesRepository {
     
     return result.rows[0];
   }
+
+  async searchUsers(searchQuery: string) {
+    const query = `
+      SELECT u.id, u.name, u.email, u.primary_role as role, p.designation as headline
+      FROM users u
+      LEFT JOIN user_profiles p ON u.id = p.user_id
+      WHERE u.name ILIKE $1 OR u.email ILIKE $1
+      LIMIT 10;
+    `;
+    const result = await pool.query(query, [`%${searchQuery}%`]);
+    return result.rows;
+  }
 }
 
 export const profilesRepository = new ProfilesRepository();

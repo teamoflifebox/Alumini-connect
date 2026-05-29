@@ -14,6 +14,11 @@ export class ProfilesService {
   async searchProfiles(filters: any, limit: number, offset: number, currentUserId?: string) {
     return await profilesRepository.searchProfiles(filters, limit, offset, currentUserId);
   }
+
+  async searchUsers(query: string) {
+    if (!query || query.trim().length < 2) return [];
+    return await profilesRepository.searchUsers(query.trim());
+  }
 }
 
 export const profilesService = new ProfilesService();

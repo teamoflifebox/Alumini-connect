@@ -18,8 +18,8 @@ export const useAuth = () => {
   const isAlumni = user?.role === 'alumni';
   const isStudent = user?.role === 'student';
 
-  // Pending verification: logged in but not yet verified by email OR not approved by admin
-  const isPendingVerification = isAuthenticated && (user?.is_verified === false || user?.is_approved === false);
+  // Pending verification: logged in but not approved by admin
+  const isPendingVerification = isAuthenticated && user?.is_approved === false;
 
   return {
     user,

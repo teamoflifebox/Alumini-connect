@@ -52,6 +52,16 @@ export class ProfilesController {
       next(error);
     }
   }
+
+  async searchUsers(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const q = req.query.q as string;
+      const users = await profilesService.searchUsers(q);
+      res.status(200).json({ status: 'success', data: users });
+    } catch (error: any) {
+      next(error);
+    }
+  }
 }
 
 export const profilesController = new ProfilesController();

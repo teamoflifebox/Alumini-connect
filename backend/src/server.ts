@@ -4,6 +4,7 @@ import { env } from './config/env';
 import { connectRedis } from './config/redis';
 import { initMeilisearch } from './core/config/meilisearch';
 import { initSocket } from './core/socket';
+import { socketService } from './services/socket.service';
 
 const PORT = env.PORT;
 
@@ -29,7 +30,9 @@ const startServer = async () => {
       console.log(`Server is listening on port ${PORT}`);
     });
 
+    // Initialize both socket implementations (we will need to merge them eventually)
     initSocket(server);
+    socketService.init(server);
 
     server.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {

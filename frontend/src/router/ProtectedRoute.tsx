@@ -22,11 +22,6 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Logged in but admin hasn't verified them yet → show pending page
-  if (isPendingVerification) {
-    return <Navigate to="/pending-verification" replace />;
-  }
-
   // Logged in but wrong role → redirect to their own dashboard
   if (allowedRoles && !hasRole(allowedRoles)) {
     return <Navigate to="/unauthorized" replace />;

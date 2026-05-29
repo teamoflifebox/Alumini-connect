@@ -136,7 +136,8 @@ export class AuthController {
 
   async linkedinLogin(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await authOAuthService.linkedinLogin(req.body.accessToken);
+      const { code, redirectUri } = req.body;
+      const result = await authOAuthService.linkedinLogin(code, redirectUri);
       sendAuthResponse(res, result);
     } catch (error) {
       next(error);
