@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -14,7 +14,15 @@ import ReferralsTab from '../../shared/components/ReferralsTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
+<<<<<<< HEAD
 import SettingsPage from '../../../pages/SettingsPage';
+=======
+import DirectoryTab from '../../shared/components/DirectoryTab';
+import MessagingTab from '../../shared/components/MessagingTab';
+import { MessageSquare, Users as UsersIcon } from 'lucide-react';
+import { useCommunityStore } from '../../community/store';
+import { useQueryClient } from '@tanstack/react-query';
+>>>>>>> 0343ee3084de6b4f32b2fa1838b41e120a5e8f97
 
 interface JobPost {
   id: number;
@@ -37,6 +45,7 @@ interface MentorshipRequest {
 
 export default function AlumniDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, logout } = useAuth();
   
   const [activeTab, setActiveTab] = useState('overview');
@@ -78,6 +87,35 @@ export default function AlumniDashboard() {
         setIsLoading(false);
     }, 500);
   };
+
+  useEffect(() => {
+    const handleNavigate = (e: any) => {
+      if (e.detail) {
+        setActiveTab(e.detail);
+      }
+    };
+    window.addEventListener('navigate-tab', handleNavigate);
+    return () => window.removeEventListener('navigate-tab', handleNavigate);
+  }, []);
+
+  const { connectSocket, disconnectSocket, socket } = useCommunityStore();
+
+  useEffect(() => {
+    connectSocket();
+    return () => disconnectSocket();
+  }, [connectSocket, disconnectSocket]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNotification = (notif: any) => {
+      if (notif.type === 'connection_accepted' || notif.type === 'connection_request') {
+        queryClient.invalidateQueries({ queryKey: ['connections'] });
+        alert(notif.message);
+      }
+    };
+    socket.on('notification', handleNotification);
+    return () => { socket.off('notification', handleNotification); }
+  }, [socket, queryClient]);
 
   const handleSaveProfile = async () => {
     setSaveStatus('Saving...');
@@ -123,8 +161,10 @@ export default function AlumniDashboard() {
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'profile', label: 'My Profile', icon: UserCircle },
     { id: 'jobs', label: 'Job Board', icon: Briefcase },
+    { id: 'directory', label: 'Directory', icon: UsersIcon },
+    { id: 'community', label: 'Community Feed', icon: Users },
+    { id: 'messages', label: 'Messages', icon: MessageSquare },
     { id: 'mentorship', label: 'Mentorship', icon: Users },
-    { id: 'community', label: 'Community', icon: Users },
     { id: 'events', label: 'Events', icon: Award },
     { id: 'referrals', label: 'Referrals', icon: Users },
     { id: 'donations', label: 'Donations', icon: Award },
@@ -366,6 +406,8 @@ export default function AlumniDashboard() {
           {/* Mentorship Tab */}
           {activeTab === 'mentorship' && <MentorshipTab />}
           {activeTab === 'community' && <CommunityTab />}
+          {activeTab === 'directory' && <DirectoryTab />}
+          {activeTab === 'messages' && <MessagingTab />}
           {activeTab === 'events' && <EventsTab />}
           {activeTab === 'referrals' && <ReferralsTab />}
           {activeTab === 'donations' && <DonationsTab />}
