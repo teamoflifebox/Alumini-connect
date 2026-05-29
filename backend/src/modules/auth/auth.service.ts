@@ -13,6 +13,9 @@ import { AppError } from '../../utils/AppError';
 import { env } from '../../config/env';
 import { authVerificationService } from './auth.verification.service';
 import { rbacService } from '../rbac/rbac.service';
+import { userManagementRepository } from '../user-management/user-management.repository';
+import { notificationsRepository } from '../notifications/notifications.repository';
+import { socketService } from '../../services/socket.service';
 
 export { AppError };
 
@@ -167,6 +170,36 @@ export class AuthService {
       // Registration succeeds even if email fails in dev without SMTP
     }
 
+    // Notify admins of new user registration
+    try {
+      const admins = await userManagementRepository.getUsersByRoles(['admin']);
+      const adminIds = admins.map(a => a.id);
+      
+      if (adminIds.length > 0) {
+        const title = 'New User Joined';
+        const message = `${name} has joined the platform as a ${role}.`;
+        const type = 'new_user';
+        
+        const insertedIds = await notificationsRepository.createBulkNotifications(
+          adminIds,
+          title,
+          message,
+          type,
+          String(user.id)
+        );
+        
+        insertedIds.forEach(id => {
+          socketService.sendNotificationToUser(id, {
+            title,
+            type,
+            message
+          });
+        });
+      }
+    } catch (notifErr) {
+      console.error('Failed to notify admins of new user:', notifErr);
+    }
+
     return this.buildAuthResponseForUser(user);
   }
 
@@ -245,6 +278,33 @@ export class AuthService {
     // based on user.is_approved
 
     return this.buildAuthResponseForUser(user);
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await authRepository.findUserById(userId);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (user.provider && user.provider !== 'local') {
+      throw new AppError(`You logged in via ${user.provider}. Password change is not supported.`, 400);
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) {
+      throw new AppError('Incorrect current password', 401);
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await authRepository.updatePassword(userId, passwordHash);
+  }
+
+  async deleteAccount(userId: string) {
+    const user = await authRepository.findUserById(userId);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    await authRepository.deleteUser(userId);
   }
 }
 

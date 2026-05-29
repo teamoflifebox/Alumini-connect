@@ -149,17 +149,23 @@ export class ReferralsRepository {
     return result.rows[0];
   }
 
-  async getApplicationsForReferral(referralId: number, ownerId: number) {
-    // Ensure the user asking is the owner of the referral
-    const authCheck = await pool.query('SELECT user_id FROM referrals WHERE id = $1', [referralId]);
-    if (authCheck.rows.length === 0 || authCheck.rows[0].user_id !== ownerId) {
-      throw new Error('Unauthorized or referral not found');
+  async getApplicationsForReferral(referralId: number, ownerId: number, userRole?: string) {
+    // Ensure the user asking is the owner of the referral, unless they are an admin
+    if (userRole !== 'admin') {
+      const authCheck = await pool.query('SELECT user_id FROM referrals WHERE id = $1', [referralId]);
+      if (authCheck.rows.length === 0 || authCheck.rows[0].user_id !== ownerId) {
+        throw new Error('Unauthorized or referral not found');
+      }
     }
 
     const query = `
-      SELECT a.*, u.name as applicant_name, u.avatar_url 
+      SELECT a.*, 
+             u.name as applicant_name, 
+             u.avatar_url,
+             CASE WHEN us.show_email = false THEN 'Hidden' ELSE a.email END as email
       FROM referral_applications a
       JOIN users u ON a.applicant_id = u.id
+      LEFT JOIN user_settings us ON a.applicant_id = us.user_id
       WHERE a.referral_id = $1
       ORDER BY a.created_at DESC
     `;

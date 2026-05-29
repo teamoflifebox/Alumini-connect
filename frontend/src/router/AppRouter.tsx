@@ -32,6 +32,7 @@ const DonorCampaigns = lazy(() => import('../features/donor/pages/DonorCampaigns
 // Shared
 const PendingVerificationPage = lazy(() => import('../pages/PendingVerificationPage'));
 const UnauthorizedPage = lazy(() => import('../pages/UnauthorizedPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 
 /** Redirect logged-in users to their role-based dashboard */
 const RoleRedirect = () => {
@@ -92,6 +93,7 @@ export const AppRouter = () => {
         <Route element={<ProtectedRoute allowedRoles={['alumni', 'student']} />}>
           <Route path="/jobs/post" element={<RecruiterPostJob />} />
           <Route path="/campaigns" element={<DonorCampaigns />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
 
         {/* ─── Catch All ─────────────────────────────────────── */}

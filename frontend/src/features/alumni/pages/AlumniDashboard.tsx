@@ -14,6 +14,7 @@ import ReferralsTab from '../../shared/components/ReferralsTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
+import SettingsPage from '../../../pages/SettingsPage';
 
 interface JobPost {
   id: number;
@@ -372,28 +373,7 @@ export default function AlumniDashboard() {
 
           {/* Settings Tab */}
           {activeTab === 'settings' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              {[
-                { label: 'Open to Mentorship', desc: 'Allow students to send you mentorship requests.' },
-                { label: 'Email Notifications', desc: 'Get notified when a student reaches out.' },
-                { label: 'Public Profile', desc: 'Make your profile visible in the alumni directory.' },
-              ].map((s, i) => (
-                <div key={i} className="flex items-center justify-between p-6 border border-white/5 rounded-2xl bg-[#15171c] hover:bg-white/[0.02] transition-all">
-                  <div>
-                    <h4 className="font-bold text-white mb-1">{s.label}</h4>
-                    <p className="text-sm text-muted-foreground">{s.desc}</p>
-                  </div>
-                  <div className="w-12 h-6 bg-primary/30 rounded-full relative cursor-pointer border border-primary/30">
-                    <div className="w-4 h-4 bg-primary rounded-full absolute right-1 top-1" />
-                  </div>
-                </div>
-              ))}
-              <div className="mt-8 p-6 border border-red-500/10 rounded-2xl bg-red-500/5">
-                <h4 className="font-bold text-white mb-1">Danger Zone</h4>
-                <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all your data.</p>
-                <button className="text-sm text-red-400 border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-xl transition-all">Delete Account</button>
-              </div>
-            </motion.div>
+            <SettingsPage />
           )}
         </div>
       </main>

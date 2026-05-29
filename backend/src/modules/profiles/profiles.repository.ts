@@ -60,10 +60,17 @@ export class ProfilesRepository {
 
   async searchUsers(searchQuery: string) {
     const query = `
-      SELECT u.id, u.name, u.email, u.primary_role as role, p.designation as headline
+      SELECT 
+        u.id, 
+        u.name, 
+        CASE WHEN us.show_email = true THEN u.email ELSE NULL END as email,
+        u.primary_role as role, 
+        p.designation as headline
       FROM users u
       LEFT JOIN profiles p ON u.id = p.user_id
-      WHERE u.name ILIKE $1 OR u.email ILIKE $1
+      LEFT JOIN user_settings us ON u.id = us.user_id
+      WHERE (u.name ILIKE $1 OR u.email ILIKE $1)
+        AND (us.public_profile = true OR us.public_profile IS NULL)
       LIMIT 10;
     `;
     const result = await pool.query(query, [`%${searchQuery}%`]);

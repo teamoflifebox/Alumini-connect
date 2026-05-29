@@ -175,6 +175,16 @@ export default function ReferralsTab() {
                   ) : (
                     <button 
                       onClick={async () => {
+                        if (ref.referral_link) {
+                          window.open(
+                            ref.referral_link.startsWith('http') ? ref.referral_link : `https://${ref.referral_link}`, 
+                            '_blank'
+                          );
+                        } else {
+                          // Fallback if no link
+                          setSelectedApplyReferral(ref);
+                        }
+
                         try {
                           const newApp = await referralsApi.applyToReferral(ref.id, {
                             fullName: user?.name || 'External Applicant',
@@ -188,16 +198,6 @@ export default function ReferralsTab() {
                           setExploreReferrals(prev => prev.map(r => 
                             r.id === ref.id ? { ...r, user_application_id: newApp.id, user_application_status: 'Applied' } : r
                           ));
-
-                          if (ref.referral_link) {
-                            window.open(
-                              ref.referral_link.startsWith('http') ? ref.referral_link : `https://${ref.referral_link}`, 
-                              '_blank'
-                            );
-                          } else {
-                            // Fallback if no link
-                            setSelectedApplyReferral(ref);
-                          }
                         } catch (e) { 
                           console.error(e); 
                         }

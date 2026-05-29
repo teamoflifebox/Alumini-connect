@@ -10,6 +10,7 @@ import ReferralsTab from '../../shared/components/ReferralsTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
+import SettingsPage from '../../../pages/SettingsPage';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -510,56 +511,7 @@ export default function StudentDashboard() {
            {activeTab === 'notifications' && <NotificationsTab />}
 
            {activeTab === 'settings' && (
-             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="border border-white/10 rounded-3xl p-8 bg-[#15171c]">
-               <h3 className="text-3xl font-bold text-white mb-2">System Preferences</h3>
-               <p className="text-muted-foreground mb-8">Manage your hardware security protocols and global network visibility attributes.</p>
-               
-               <div className="space-y-4">
-                 
-                 <div className="flex items-center justify-between p-6 border border-white/5 rounded-2xl bg-[#1c1f26] transition-all hover:bg-white/[0.03]">
-                   <div>
-                     <h4 className="font-bold text-white text-md">Email Notifications</h4>
-                     <p className="text-sm text-muted-foreground mt-1">Receive strictly tailored daily digests of new job pipelines and mentorship matches.</p>
-                   </div>
-                   <div onClick={() => toggleSetting('emailNotifs')} className={`w-14 h-7 rounded-full relative cursor-pointer transition-colors ${settingsState.emailNotifs ? 'bg-primary' : 'bg-white/10'}`}>
-                     <motion.div layout transition={{ type: 'spring', stiffness: 700, damping: 30 }} className={`w-5 h-5 bg-white rounded-full absolute top-1 ${settingsState.emailNotifs ? 'right-1' : 'left-1'}`} />
-                   </div>
-                 </div>
-
-                 <div className="flex items-center justify-between p-6 border border-white/5 rounded-2xl bg-[#1c1f26] transition-all hover:bg-white/[0.03]">
-                   <div>
-                     <h4 className="font-bold text-white text-md">Public Profile Visibility</h4>
-                     <p className="text-sm text-muted-foreground mt-1">Permit verified external corporate recruiters to discover your portfolio actively.</p>
-                   </div>
-                   <div onClick={() => toggleSetting('publicProfile')} className={`w-14 h-7 rounded-full relative cursor-pointer transition-colors ${settingsState.publicProfile ? 'bg-primary' : 'bg-white/10'}`}>
-                     <motion.div layout transition={{ type: 'spring', stiffness: 700, damping: 30 }} className={`w-5 h-5 bg-white rounded-full absolute top-1 ${settingsState.publicProfile ? 'right-1' : 'left-1'}`} />
-                   </div>
-                 </div>
-
-                 <div className="flex items-center justify-between p-6 border border-white/5 rounded-2xl bg-[#1c1f26] transition-all hover:bg-white/[0.03]">
-                   <div>
-                     <h4 className="font-bold text-white text-md">Two-Factor Authentication (2FA)</h4>
-                     <p className="text-sm text-muted-foreground mt-1">Require an advanced biometric or authenticator security layer during login execution.</p>
-                   </div>
-                   <div onClick={() => {
-                     toggleSetting('twoFactor');
-                     if (!settingsState.twoFactor) alert("2FA Setup Initiated");
-                   }} className={`w-14 h-7 rounded-full relative cursor-pointer transition-colors ${settingsState.twoFactor ? 'bg-primary' : 'bg-white/10'}`}>
-                     <motion.div layout transition={{ type: 'spring', stiffness: 700, damping: 30 }} className={`w-5 h-5 bg-white rounded-full absolute top-1 ${settingsState.twoFactor ? 'right-1' : 'left-1'}`} />
-                   </div>
-                 </div>
-
-               </div>
-               
-               <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-                  <p className="text-xs text-muted-foreground max-w-sm">
-                    Exporting data compiles your complete operational history and connected endpoints as mandated by GDPR infrastructure regulations.
-                  </p>
-                  <button onClick={() => alert("GDPR Extract Triggered")} className="bg-white/5 hover:bg-white/10 text-white font-bold py-3 px-8 rounded-xl transition-all border border-white/5 w-full md:w-auto">
-                    Export Security Data
-                  </button>
-               </div>
-             </motion.div>
+             <SettingsPage />
            )}
         </div>
       </main>

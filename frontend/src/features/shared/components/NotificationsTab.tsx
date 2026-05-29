@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bell, User, Info, AlertCircle, Calendar, 
-  Check, CheckSquare, Clock, Trash2, ShieldAlert
+  Check, CheckSquare, Clock, Trash2, ShieldAlert, Briefcase, RefreshCw, UserPlus
 } from 'lucide-react';
 import { useSocket } from '../../../hooks/useSocket';
 import { notificationsApi, type Notification } from '../../../api/notifications.api';
@@ -89,8 +89,9 @@ export default function NotificationsTab() {
           bg: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
         };
       case 'session_created':
+      case 'new_session':
         return {
-          title: 'Mentorship Session Created',
+          title: 'New Mentorship Session',
           icon: <Calendar className="text-emerald-400" size={20} />,
           bg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
         };
@@ -105,6 +106,24 @@ export default function NotificationsTab() {
           title: 'Session Cancelled',
           icon: <AlertCircle className="text-red-400" size={20} />,
           bg: 'bg-red-500/10 border-red-500/20 text-red-400',
+        };
+      case 'new_referral':
+        return {
+          title: 'New Referral Posted',
+          icon: <Briefcase className="text-cyan-400" size={20} />,
+          bg: 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400',
+        };
+      case 'referral_status_update':
+        return {
+          title: 'Application Status Updated',
+          icon: <RefreshCw className="text-indigo-400" size={20} />,
+          bg: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400',
+        };
+      case 'new_user':
+        return {
+          title: 'New User Joined',
+          icon: <UserPlus className="text-orange-400" size={20} />,
+          bg: 'bg-orange-500/10 border-orange-500/20 text-orange-400',
         };
       default:
         return {
