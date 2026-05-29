@@ -3,11 +3,11 @@ export interface Event {
   title: string;
   description: string;
   event_type: 'Webinar' | 'Meetup' | 'Reunion' | 'Workshop';
-  organizer_id: string; // References UserProfile
+  organizer_id: number;
   start_time: Date;
   end_time: Date;
   location_type: 'Online' | 'In-Person';
-  location_details: string; // Zoom link or physical address
+  location_details: string;
   capacity?: number;
   created_at: Date;
   updated_at: Date;
@@ -15,8 +15,8 @@ export interface Event {
 
 export interface EventRegistration {
   id: string;
-  event_id: string; // References Event
-  user_id: string; // References UserProfile
+  event_id: string;
+  user_id: number;
   status: 'Registered' | 'Attended' | 'Cancelled';
   registered_at: Date;
 }
@@ -29,4 +29,5 @@ export interface CreateEventDTO {
   end_time: Date;
   location_type: string;
   location_details: string;
+  capacity?: number;
 }

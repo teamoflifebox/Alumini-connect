@@ -29,6 +29,7 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         { label: 'Dashboard', path: '/student/dashboard' },
         { label: 'Jobs', path: '/student/jobs' },
         { label: 'Mentorship', path: '/student/mentorship' },
+        { label: 'Events', path: '/events' },
       ];
     }
     if (isAlumni) {
@@ -36,6 +37,7 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         { label: 'Dashboard', path: '/alumni/dashboard' },
         { label: 'Referrals', path: '/alumni/jobs' },
         { label: 'Mentorship', path: '/alumni/mentorship' },
+        { label: 'Events', path: '/events' },
       ];
     }
     if (isRecruiter) {
