@@ -7,12 +7,17 @@ export interface ServerToClientEvents {
   notification: (data: any) => void;
   session_updated: (data: any) => void;
   chat_message: (data: any) => void;
+  receive_message: (data: any) => void;
+  typing: (data: any) => void;
 }
 
 export interface ClientToServerEvents {
   join_session: (sessionId: string) => void;
   leave_session: (sessionId: string) => void;
-  send_message: (data: { sessionId: string; message: string }) => void;
+  send_message: (data: any) => void;
+  join_conversation: (conversationId: string) => void;
+  leave_conversation: (conversationId: string) => void;
+  typing: (data: { conversationId: string; isTyping: boolean }) => void;
 }
 
 export interface InterServerEvents {}
@@ -20,6 +25,7 @@ export interface InterServerEvents {}
 export interface SocketData {
   userId: string;
   role: string;
+  user?: any;
 }
 
 class SocketService {
@@ -45,6 +51,7 @@ class SocketService {
         const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as any;
         socket.data.userId = decoded.id;
         socket.data.role = decoded.primary_role || decoded.role;
+        socket.data.user = decoded;
         next();
       } catch (err) {
         next(new Error('Authentication error: Invalid token'));
@@ -69,15 +76,33 @@ class SocketService {
         console.log(`User ${socket.data.userId} left session room ${sessionId}`);
       });
 
-      // Handle incoming chat messages for a session
+      // Handle incoming chat messages for a session or conversation
       socket.on('send_message', (data) => {
-        // Broadcast to everyone in the room EXCEPT the sender (sender can optimistically update UI)
-        // Or broadcast to everyone including sender depending on frontend implementation.
-        this.io?.to(`session_${data.sessionId}`).emit('chat_message', {
-          sessionId: data.sessionId,
+        if (data.sessionId) {
+          this.io?.to(`session_${data.sessionId}`).emit('chat_message', {
+            sessionId: data.sessionId,
+            userId: socket.data.userId,
+            message: data.message,
+            timestamp: new Date().toISOString()
+          });
+        } else if (data.conversationId) {
+          this.io?.to(`conversation_${data.conversationId}`).emit('receive_message', data);
+        }
+      });
+
+      // Handle conversations
+      socket.on('join_conversation', (conversationId) => {
+        socket.join(`conversation_${conversationId}`);
+      });
+
+      socket.on('leave_conversation', (conversationId) => {
+        socket.leave(`conversation_${conversationId}`);
+      });
+
+      socket.on('typing', ({ conversationId, isTyping }) => {
+        socket.to(`conversation_${conversationId}`).emit('typing', {
           userId: socket.data.userId,
-          message: data.message,
-          timestamp: new Date().toISOString()
+          isTyping
         });
       });
 
@@ -114,6 +139,10 @@ class SocketService {
     if (this.io) {
       this.io.emit(event as any, payload);
     }
+  }
+
+  public getIo() {
+    return this.io;
   }
 }
 

@@ -40,6 +40,9 @@ const AlumniDirectory = lazy(() => import('../features/community/pages/AlumniDir
 const FeedPage = lazy(() => import('../features/community/pages/FeedPage').then(m => ({ default: m.FeedPage })));
 const MessagingPage = lazy(() => import('../features/community/pages/MessagingPage').then(m => ({ default: m.MessagingPage })));
 
+// Success Stories
+const SuccessStoriesPage = lazy(() => import('../features/success-stories/pages/SuccessStoriesPage').then(m => ({ default: m.SuccessStoriesPage })));
+
 /** Redirect logged-in users to their role-based dashboard */
 const RoleRedirect = () => {
   const { user, isAuthenticated } = useAuth();
@@ -71,6 +74,7 @@ export const AppRouter = () => {
         <Route path="/pending-verification" element={<PendingVerificationPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="/linkedin" element={<LinkedInCallback />} />
+        <Route path="/success-stories" element={<SuccessStoriesPage />} />
 
         {/* ─── Role Redirect (after login) ───────────────────── */}
         <Route path="/dashboard" element={<RoleRedirect />} />

@@ -20,6 +20,7 @@ import MessagingTab from '../../shared/components/MessagingTab';
 import { MessageSquare, Users as UsersIcon } from 'lucide-react';
 import { useCommunityStore } from '../../community/store';
 import { useQueryClient } from '@tanstack/react-query';
+import { SuccessStoriesPage } from '../../success-stories/pages/SuccessStoriesPage';
 
 interface JobPost {
   id: number;
@@ -165,6 +166,7 @@ export default function AlumniDashboard() {
     { id: 'events', label: 'Events', icon: Award },
     { id: 'referrals', label: 'Referrals', icon: Users },
     { id: 'donations', label: 'Donations', icon: Award },
+    { id: 'success-stories', label: 'Success Stories', icon: Award },
     { id: 'notifications', label: 'Notifications', icon: Award },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -407,6 +409,7 @@ export default function AlumniDashboard() {
           {activeTab === 'events' && <EventsTab />}
           {activeTab === 'referrals' && <ReferralsTab />}
           {activeTab === 'donations' && <DonationsTab />}
+          {activeTab === 'success-stories' && <SuccessStoriesPage />}
           {activeTab === 'notifications' && <NotificationsTab />}
 
           {/* Settings Tab */}

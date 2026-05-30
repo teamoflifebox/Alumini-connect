@@ -47,6 +47,7 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-primary transition-colors">Features</a>
             <a href="#roles" className="hover:text-primary transition-colors">Benefits</a>
             <a href="#scholarships" className="hover:text-primary transition-colors">Scholarships</a>
+            <button onClick={() => navigate('/success-stories')} className="hover:text-primary transition-colors">Success Stories</button>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => navigate('/login')} className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">Sign In</button>
