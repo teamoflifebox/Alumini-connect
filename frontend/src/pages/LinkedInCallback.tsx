@@ -31,7 +31,7 @@ export default function LinkedInCallback() {
     authApi.linkedinLogin(code, `${window.location.origin}/linkedin`)
       .then(response => {
         const { user, accessToken } = response.data.data;
-        const mappedUser = { ...user, role: user.primary_role || user.role };
+        const mappedUser = { ...user, role: (user as any).primary_role || user.role };
         setAuth(mappedUser, accessToken);
         navigate('/dashboard');
       })

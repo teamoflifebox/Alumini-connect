@@ -24,6 +24,7 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         { label: 'Users', path: '/admin/users' },
         { label: 'Directory', path: '/community/directory' },
         { label: 'Feed', path: '/community/feed' },
+        { label: 'Success Stories', path: '/success-stories' },
       ];
     }
     if (isStudent) {
@@ -35,6 +36,7 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         { label: 'Jobs', path: '/student/jobs' },
         { label: 'Mentorship', path: '/student/mentorship' },
         { label: 'Events', path: '/events' },
+        { label: 'Success Stories', path: '/success-stories' },
       ];
     }
     if (isAlumni) {
@@ -46,6 +48,7 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         { label: 'Referrals', path: '/alumni/jobs' },
         { label: 'Mentorship', path: '/alumni/mentorship' },
         { label: 'Events', path: '/events' },
+        { label: 'Success Stories', path: '/success-stories' },
       ];
     }
     if (isRecruiter) {

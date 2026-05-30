@@ -10,6 +10,7 @@ import CommunityTab from '../../shared/components/CommunityTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
+import { SuccessStoriesPage } from '../../success-stories/pages/SuccessStoriesPage';
 
 interface Profile {
   id: string;
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
     { id: 'donations', label: 'Donations & Campaigns', icon: GraduationCap },
     { id: 'mentorship', label: 'Mentorship', icon: Users },
     { id: 'community', label: 'Community', icon: Users },
+    { id: 'success-stories', label: 'Success Stories', icon: Award },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'profile', label: 'My Profile', icon: UserCircle },
     { id: 'settings', label: 'System Settings', icon: Settings },
@@ -273,8 +275,9 @@ export default function AdminDashboard() {
           {activeTab === 'events' && <EventsTab />}
           {activeTab === 'donations' && <DonationsTab />}
           {activeTab === 'mentorship' && <MentorshipTab />}
-          {activeTab === 'community' && <CommunityTab />}
-          {activeTab === 'notifications' && <NotificationsTab />}
+          { activeTab === 'community' && <CommunityTab /> }
+          { activeTab === 'success-stories' && <SuccessStoriesPage /> }
+          { activeTab === 'notifications' && <NotificationsTab /> }
           
           {activeTab === 'profile' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

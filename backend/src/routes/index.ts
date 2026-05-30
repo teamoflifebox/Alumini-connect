@@ -11,6 +11,7 @@ import messagingRoutes from '../modules/messaging/messaging.routes';
 import mentorshipRoutes from '../modules/mentorship/mentorship.routes';
 import notificationsRoutes from '../modules/notifications/notifications.routes';
 import referralsRoutes from '../modules/referrals/referrals.routes';
+import successStoriesRoutes from '../modules/success-stories/success-stories.routes';
 
 /**
  * Central API route registration
@@ -58,5 +59,8 @@ router.use('/notifications', notificationsRoutes);
 
 // Referrals
 router.use('/referrals', referralsRoutes);
+
+// Success Stories
+router.use('/success-stories', successStoriesRoutes);
 
 export default router;
