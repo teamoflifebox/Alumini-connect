@@ -69,7 +69,7 @@ export class MentorshipService {
             await mentorshipRepository.inviteUser(fullSession.id, userId);
             
             // Persist notification in database
-            await notificationsRepository.createNotification(
+            const notif = await notificationsRepository.createNotification(
               userId,
               'Mentorship Invitation',
               `You have been specifically invited to "${fullSession.title}"!`,
@@ -77,11 +77,13 @@ export class MentorshipService {
               String(fullSession.id)
             );
 
-            socketService.sendNotificationToUser(userId, {
-              type: 'session_invite',
-              message: `You have been specifically invited to "${fullSession.title}"!`,
-              sessionId: fullSession.id
-            });
+            if (notif) {
+              socketService.sendNotificationToUser(userId, {
+                type: 'session_invite',
+                message: `You have been specifically invited to "${fullSession.title}"!`,
+                sessionId: fullSession.id
+              });
+            }
           }
         }
       } else {
@@ -94,7 +96,7 @@ export class MentorshipService {
             if (user.id === params.mentorId || user.role === 'admin') continue; // don't notify creator or admins
             
             // Persist notification in database
-            await notificationsRepository.createNotification(
+            const notif = await notificationsRepository.createNotification(
               user.id,
               'New Targeted Session',
               `New session "${fullSession.title}" tailored for ${params.target_domain} has been created!`,
@@ -102,20 +104,15 @@ export class MentorshipService {
               String(fullSession.id)
             );
 
-            socketService.sendNotificationToUser(user.id, {
-              type: 'session_created',
-              message: `New session "${fullSession.title}" tailored for ${params.target_domain} has been created!`,
-              sessionId: fullSession.id
-            });
+            if (notif) {
+              socketService.sendNotificationToUser(user.id, {
+                type: 'session_created',
+                message: `New session "${fullSession.title}" tailored for ${params.target_domain} has been created!`,
+                sessionId: fullSession.id
+              });
+            }
           }
         } else {
-          // Emit global notification for general public sessions to update dashboards in real-time
-          socketService.emitGlobally('notification', {
-            type: 'session_created',
-            message: `New session "${fullSession.title}" has been created!`,
-            sessionId: fullSession.id
-          });
-
           // Persist notification for all active users except admins and creator
           try {
             const allUsers = await userManagementRepository.getAllUsers();
@@ -124,13 +121,22 @@ export class MentorshipService {
               .map((u: any) => u.id);
 
             if (userIds.length > 0) {
-              await notificationsRepository.createBulkNotifications(
+              const insertedIds = await notificationsRepository.createBulkNotifications(
                 userIds,
                 'New Mentorship Session',
                 `New session "${fullSession.title}" has been created!`,
                 'session_created',
                 String(fullSession.id)
               );
+              
+              // Only emit to users who have notifications enabled
+              insertedIds.forEach(id => {
+                socketService.sendNotificationToUser(id, {
+                  type: 'session_created',
+                  message: `New session "${fullSession.title}" has been created!`,
+                  sessionId: fullSession.id
+                });
+              });
             }
           } catch (bulkErr) {
             console.error('Failed to create bulk notifications for public session:', bulkErr);
@@ -161,7 +167,7 @@ export class MentorshipService {
       const attendeeIds = session.attendee_ids.filter((id: any) => typeof id === 'number');
       if (attendeeIds.length > 0) {
         try {
-          await notificationsRepository.createBulkNotifications(
+          const insertedIds = await notificationsRepository.createBulkNotifications(
             attendeeIds,
             'Session Cancelled',
             `The session "${session.title}" has been cancelled by the mentor.`,
@@ -169,7 +175,7 @@ export class MentorshipService {
             String(sessionId)
           );
           
-          attendeeIds.forEach((id: number) => {
+          insertedIds.forEach((id: number) => {
             socketService.sendNotificationToUser(id, {
               type: 'session_deleted',
               message: `The session "${session.title}" has been cancelled by the mentor.`,
@@ -182,12 +188,9 @@ export class MentorshipService {
       }
     }
 
-    // 2. Emit global notification
-    socketService.emitGlobally('notification', {
-      type: 'session_deleted',
-      message: `A session has been cancelled.`,
-      sessionId
-    });
+    // We also should remove the global socket emit since attendees get individual socket messages above.
+    // socketService.emitGlobally('notification', { ... })
+
 
     return deletedSession;
   }
@@ -246,7 +249,7 @@ export class MentorshipService {
       const joiningUser = await userManagementRepository.findUserById(String(userId));
       const userName = joiningUser ? joiningUser.name : 'A student';
       
-      await notificationsRepository.createNotification(
+      const notif = await notificationsRepository.createNotification(
         session.mentor_id,
         'Attendee Joined',
         `${userName} has joined your session "${session.title}"!`,
@@ -254,11 +257,13 @@ export class MentorshipService {
         String(sessionId)
       );
 
-      socketService.sendNotificationToUser(session.mentor_id, {
-        type: 'session_updated',
-        message: `${userName} has joined your session "${session.title}"!`,
-        sessionId
-      });
+      if (notif) {
+        socketService.sendNotificationToUser(session.mentor_id, {
+          type: 'session_updated',
+          message: `${userName} has joined your session "${session.title}"!`,
+          sessionId
+        });
+      }
     } catch (err) {
       console.error('Failed to notify mentor of new attendee:', err);
     }
@@ -292,7 +297,7 @@ export class MentorshipService {
     
     // Notify the target user
     if (invite) {
-      await notificationsRepository.createNotification(
+      const notif = await notificationsRepository.createNotification(
         targetUserId,
         'Mentorship Invitation',
         `You have been invited to join the session "${session.title}"`,
@@ -300,11 +305,13 @@ export class MentorshipService {
         String(sessionId)
       );
 
-      socketService.sendNotificationToUser(targetUserId, {
-        type: 'session_invite',
-        message: `You have been invited to join the session "${session.title}"`,
-        sessionId
-      });
+      if (notif) {
+        socketService.sendNotificationToUser(targetUserId, {
+          type: 'session_invite',
+          message: `You have been invited to join the session "${session.title}"`,
+          sessionId
+        });
+      }
     }
     
     return invite;

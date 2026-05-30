@@ -33,4 +33,8 @@ export const authApi = {
   /** LinkedIn OAuth Login */
   linkedinLogin: (code: string, redirectUri: string) =>
     api.post<{ data: AuthResponse }>('/auth/linkedin', { code, redirectUri }),
+
+  /** Change Password (authenticated) */
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    api.put('/auth/change-password', data),
 };

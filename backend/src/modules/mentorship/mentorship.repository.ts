@@ -172,15 +172,18 @@ export class MentorshipRepository {
 
   async getUsersByDomain(domain: string) {
     const query = `
-      SELECT u.id, u.name, u.email
+      SELECT u.id, u.name, CASE WHEN us.show_email = false THEN 'Hidden' ELSE u.email END as email
       FROM profiles p
       JOIN users u ON p.user_id = u.id
-      WHERE EXISTS (
-        SELECT 1 FROM jsonb_array_elements_text(p.target_roles) AS role
-        WHERE role ILIKE $1
-      ) OR EXISTS (
-        SELECT 1 FROM unnest(p.skills) AS skill
-        WHERE skill ILIKE $1
+      LEFT JOIN user_settings us ON u.id = us.user_id
+      WHERE (us.public_profile = true OR us.public_profile IS NULL) AND (
+        EXISTS (
+          SELECT 1 FROM jsonb_array_elements_text(p.target_roles) AS role
+          WHERE role ILIKE $1
+        ) OR EXISTS (
+          SELECT 1 FROM unnest(p.skills) AS skill
+          WHERE skill ILIKE $1
+        )
       )
     `;
     // We do a loose match

@@ -54,12 +54,12 @@ export default function ViewReferralModal({ referral, onClose, updateReferralSta
               </div>
             )}
             
-            {referral.salary_ctc && (
+            {referral.salary && (
               <div className="bg-[#1c1f26] border border-white/5 rounded-2xl p-4 flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase">
-                  <IndianRupee size={14} /> CTC
+                  <IndianRupee size={14} /> CTC / Package
                 </div>
-                <div className="font-bold text-white">{referral.salary_ctc}</div>
+                <div className="font-bold text-white">{referral.salary}</div>
               </div>
             )}
 
@@ -123,7 +123,7 @@ export default function ViewReferralModal({ referral, onClose, updateReferralSta
           <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-muted-foreground hover:text-white transition-colors bg-white/5 hover:bg-white/10">
             Close
           </button>
-          {Number(referral.user_id) !== Number(user?.id) && (
+          {Number(referral.user_id) !== Number(user?.id) && user?.role !== 'admin' && (
             referral.user_application_id ? (
               <select
                 value={referral.user_application_status || 'Applied'}
@@ -140,6 +140,14 @@ export default function ViewReferralModal({ referral, onClose, updateReferralSta
             ) : (
               <button 
                 onClick={async () => {
+                  // Always open the link immediately so the user isn't blocked
+                  if (referral.referral_link) {
+                    window.open(
+                      referral.referral_link.startsWith('http') ? referral.referral_link : `https://${referral.referral_link}`, 
+                      '_blank'
+                    );
+                  }
+                  
                   try {
                     // Track the application click in the backend
                     const newApp = await referralsApi.applyToReferral(referral.id, {
@@ -161,16 +169,10 @@ export default function ViewReferralModal({ referral, onClose, updateReferralSta
                         user_application_status: 'Applied'
                       }, 'Applied');
                     }
-                    
-                    if (referral.referral_link) {
-                      window.open(
-                        referral.referral_link.startsWith('http') ? referral.referral_link : `https://${referral.referral_link}`, 
-                        '_blank'
-                      );
-                    }
-                    onClose(); // close modal after applying
                   } catch (e) {
                     console.error('Tracking failed', e);
+                  } finally {
+                    onClose(); // close modal after attempting to track
                   }
                 }}
                 className="bg-primary hover:bg-brand-600 text-white px-8 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(37,99,235,0.2)]"

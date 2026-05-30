@@ -154,6 +154,26 @@ export class AuthRepository {
       [data.provider, data.providerId, data.avatarUrl ?? null, data.isVerified ?? true, userId]
     );
   }
+
+  async updateApprovalStatus(
+    userId: string,
+    status: 'approved' | 'rejected',
+    adminId: string,
+    reason?: string
+  ): Promise<void> {
+    const isApproved = status === 'approved';
+    await pool.query(
+      `UPDATE users 
+       SET is_approved = $1, approval_status = $2, approved_by = $3, 
+           approved_at = NOW(), rejection_reason = $4, updated_at = NOW()
+       WHERE id = $5`,
+      [isApproved, status, adminId, reason || null, userId]
+    );
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+  }
 }
 
 export const authRepository = new AuthRepository();

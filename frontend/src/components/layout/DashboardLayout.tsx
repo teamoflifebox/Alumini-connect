@@ -87,11 +87,17 @@ export const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             </Link>
           ))}
         </nav>
-        <div className="p-4 border-t">
+        <div className="p-4 border-t space-y-2">
           <div className="mb-4">
             <p className="text-sm font-medium">{user?.name}</p>
             <p className="text-xs text-gray-500">{user?.email}</p>
           </div>
+          <Link
+            to="/settings"
+            className="block w-full px-4 py-2 text-sm text-center text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+          >
+            Settings
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full px-4 py-2 text-sm text-red-600 bg-red-50 rounded hover:bg-red-100"

@@ -138,7 +138,7 @@ export class ReferralsController {
       const ownerId = Number(req.user.id);
       const referralId = Number(req.params.id);
       
-      const applications = await referralsService.getApplicationsForReferral(referralId, ownerId);
+      const applications = await referralsService.getApplicationsForReferral(referralId, ownerId, req.user.primary_role);
       res.status(200).json({ status: 'success', data: applications });
     } catch (error: any) {
       if (error.message.includes('Unauthorized')) {
@@ -171,6 +171,47 @@ export class ReferralsController {
     try {
       const leaderboard = await referralsService.getLeaderboard();
       res.status(200).json({ status: 'success', data: leaderboard });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async reportReferral(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+      const reporterId = Number(req.user.id);
+      const referralId = req.params.id as string;
+      const { reason } = req.body;
+
+      if (!reason) return res.status(400).json({ status: 'error', message: 'Reason is required' });
+
+      const result = await referralsService.reportReferral(referralId, reporterId, reason);
+      res.status(200).json({ status: 'success', data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAdminReportedReferrals(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user || req.user.primary_role !== 'admin') {
+        return res.status(403).json({ status: 'error', message: 'Admin access required' });
+      }
+      const referrals = await referralsService.getAdminReportedReferrals();
+      res.status(200).json({ status: 'success', data: referrals });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteReferral(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user || req.user.primary_role !== 'admin') {
+        return res.status(403).json({ status: 'error', message: 'Admin access required' });
+      }
+      const referralId = req.params.id as string;
+      const result = await referralsService.deleteReferral(referralId);
+      res.status(200).json({ status: 'success', data: result });
     } catch (error) {
       next(error);
     }

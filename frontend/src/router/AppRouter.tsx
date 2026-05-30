@@ -32,6 +32,7 @@ const DonorCampaigns = lazy(() => import('../features/donor/pages/DonorCampaigns
 // Shared
 const PendingVerificationPage = lazy(() => import('../pages/PendingVerificationPage'));
 const UnauthorizedPage = lazy(() => import('../pages/UnauthorizedPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const EventsPage = lazy(() => import('../features/events/pages/EventsPage'));
 
 // Community
@@ -102,6 +103,7 @@ export const AppRouter = () => {
         <Route element={<ProtectedRoute allowedRoles={['alumni', 'student', 'admin']} />}>
           <Route path="/jobs/post" element={<RecruiterPostJob />} />
           <Route path="/campaigns" element={<DonorCampaigns />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/events" element={<EventsPage />} />
           
           {/* Community Features */}

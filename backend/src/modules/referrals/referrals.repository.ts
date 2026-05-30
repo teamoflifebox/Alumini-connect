@@ -149,17 +149,23 @@ export class ReferralsRepository {
     return result.rows[0];
   }
 
-  async getApplicationsForReferral(referralId: number, ownerId: number) {
-    // Ensure the user asking is the owner of the referral
-    const authCheck = await pool.query('SELECT user_id FROM referrals WHERE id = $1', [referralId]);
-    if (authCheck.rows.length === 0 || authCheck.rows[0].user_id !== ownerId) {
-      throw new Error('Unauthorized or referral not found');
+  async getApplicationsForReferral(referralId: number, ownerId: number, userRole?: string) {
+    // Ensure the user asking is the owner of the referral, unless they are an admin
+    if (userRole !== 'admin') {
+      const authCheck = await pool.query('SELECT user_id FROM referrals WHERE id = $1', [referralId]);
+      if (authCheck.rows.length === 0 || authCheck.rows[0].user_id !== ownerId) {
+        throw new Error('Unauthorized or referral not found');
+      }
     }
 
     const query = `
-      SELECT a.*, u.name as applicant_name, u.avatar_url 
+      SELECT a.*, 
+             u.name as applicant_name, 
+             u.avatar_url,
+             CASE WHEN us.show_email = false THEN 'Hidden' ELSE a.email END as email
       FROM referral_applications a
       JOIN users u ON a.applicant_id = u.id
+      LEFT JOIN user_settings us ON a.applicant_id = us.user_id
       WHERE a.referral_id = $1
       ORDER BY a.created_at DESC
     `;
@@ -236,6 +242,64 @@ export class ReferralsRepository {
     `;
     const result = await pool.query(query);
     return result.rows;
+  }
+
+  async reportReferral(referralId: string, reporterId: number, reason: string): Promise<number> {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      // Insert report
+      const reportInsert = await client.query(
+        `INSERT INTO referral_reports (referral_id, reporter_id, reason) 
+         VALUES ($1, $2, $3) 
+         ON CONFLICT DO NOTHING RETURNING id`,
+        [referralId, reporterId, reason]
+      );
+      
+      let reportsCount = 0;
+      if (reportInsert.rowCount && reportInsert.rowCount > 0) {
+        // Increment reports_count
+        const updateRes = await client.query(
+          `UPDATE referrals 
+           SET reports_count = COALESCE(reports_count, 0) + 1 
+           WHERE id = $1 
+           RETURNING reports_count`,
+          [referralId]
+        );
+        reportsCount = updateRes.rows[0]?.reports_count || 1;
+      } else {
+        // Already reported by this user, just get current count
+        const countRes = await client.query(`SELECT reports_count FROM referrals WHERE id = $1`, [referralId]);
+        reportsCount = countRes.rows[0]?.reports_count || 0;
+      }
+      
+      await client.query('COMMIT');
+      return reportsCount;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getAdminReportedReferrals() {
+    const query = `
+      SELECT r.*, u.name as posted_by_name, u.email as posted_by_email 
+      FROM referrals r
+      JOIN users u ON r.user_id = u.id
+      WHERE COALESCE(r.reports_count, 0) > 0
+      ORDER BY r.reports_count DESC, r.created_at DESC
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+  }
+
+  async deleteReferral(id: string) {
+    const query = `DELETE FROM referrals WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
   }
 }
 
