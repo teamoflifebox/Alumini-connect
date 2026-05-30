@@ -116,5 +116,20 @@ export const referralsApi = {
   getLeaderboard: async (): Promise<any[]> => {
     const res = await api.get('/referrals/leaderboard');
     return res.data.data;
+  },
+
+  reportReferral: async (id: number, reason: string): Promise<any> => {
+    const res = await api.post(`/referrals/${id}/report`, { reason });
+    return res.data.data;
+  },
+
+  getAdminReportedReferrals: async (): Promise<Referral[]> => {
+    const res = await api.get('/referrals/admin/reported');
+    return res.data.data;
+  },
+
+  deleteReferral: async (id: number): Promise<any> => {
+    const res = await api.delete(`/referrals/${id}`);
+    return res.data.data;
   }
 };

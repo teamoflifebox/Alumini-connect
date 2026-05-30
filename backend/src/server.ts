@@ -31,7 +31,7 @@ const startServer = async () => {
     });
 
     // Initialize both socket implementations (we will need to merge them eventually)
-    initSocket(server);
+    // initSocket(server); // Prevent double websocket initialization which crashes the server
     socketService.init(server);
 
     server.on('error', (err: NodeJS.ErrnoException) => {

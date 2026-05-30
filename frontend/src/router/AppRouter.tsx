@@ -32,16 +32,13 @@ const DonorCampaigns = lazy(() => import('../features/donor/pages/DonorCampaigns
 // Shared
 const PendingVerificationPage = lazy(() => import('../pages/PendingVerificationPage'));
 const UnauthorizedPage = lazy(() => import('../pages/UnauthorizedPage'));
-<<<<<<< HEAD
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
-=======
 const EventsPage = lazy(() => import('../features/events/pages/EventsPage'));
 
 // Community
 const AlumniDirectory = lazy(() => import('../features/community/pages/AlumniDirectory').then(m => ({ default: m.AlumniDirectory })));
 const FeedPage = lazy(() => import('../features/community/pages/FeedPage').then(m => ({ default: m.FeedPage })));
 const MessagingPage = lazy(() => import('../features/community/pages/MessagingPage').then(m => ({ default: m.MessagingPage })));
->>>>>>> 0343ee3084de6b4f32b2fa1838b41e120a5e8f97
 
 /** Redirect logged-in users to their role-based dashboard */
 const RoleRedirect = () => {
@@ -102,16 +99,13 @@ export const AppRouter = () => {
         <Route element={<ProtectedRoute allowedRoles={['alumni', 'student', 'admin']} />}>
           <Route path="/jobs/post" element={<RecruiterPostJob />} />
           <Route path="/campaigns" element={<DonorCampaigns />} />
-<<<<<<< HEAD
           <Route path="/settings" element={<SettingsPage />} />
-=======
           <Route path="/events" element={<EventsPage />} />
           
           {/* Community Features */}
           <Route path="/community/directory" element={<AlumniDirectory />} />
           <Route path="/community/feed" element={<FeedPage />} />
           <Route path="/community/messages" element={<MessagingPage />} />
->>>>>>> 0343ee3084de6b4f32b2fa1838b41e120a5e8f97
         </Route>
 
         {/* ─── Catch All ─────────────────────────────────────── */}

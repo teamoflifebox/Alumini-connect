@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Briefcase, UserPlus, CheckCircle, Search, Trophy, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { Briefcase, UserPlus, CheckCircle, Search, Trophy, MapPin, Clock, ExternalLink, Flag, AlertTriangle } from 'lucide-react';
 import { referralsApi, type Referral } from '../../../api/referrals.api';
 import { useAuthStore } from '../../../store/authStore';
 import CreateReferralModal from '../../referrals/components/CreateReferralModal';
@@ -17,6 +17,9 @@ export default function ReferralsTab() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedApplyReferral, setSelectedApplyReferral] = useState<Referral | null>(null);
   const [selectedTrackingReferral, setSelectedTrackingReferral] = useState<Referral | null>(null);
+  const [selectedReportReferral, setSelectedReportReferral] = useState<Referral | null>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
 
   const [exploreReferrals, setExploreReferrals] = useState<Referral[]>([]);
   const [myReferrals, setMyReferrals] = useState<Referral[]>([]);
@@ -85,6 +88,25 @@ export default function ReferralsTab() {
     }
   };
 
+  const handleReport = async () => {
+    if (!selectedReportReferral || !reportReason) return;
+    setIsReporting(true);
+    try {
+      const res = await referralsApi.reportReferral(selectedReportReferral.id, reportReason);
+      if (res.action === 'auto_deleted') {
+        setExploreReferrals(prev => prev.filter(r => r.id !== selectedReportReferral.id));
+      }
+      setSelectedReportReferral(null);
+      setReportReason('');
+      alert('Referral has been reported successfully.');
+    } catch (e) {
+      console.error(e);
+      alert('Failed to report referral.');
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
   const renderExploreTab = () => (
     <div className="grid grid-cols-1 gap-6">
       <form onSubmit={handleSearch} className="flex gap-4 mb-2">
@@ -123,6 +145,13 @@ export default function ReferralsTab() {
                     {ref.work_type}
                   </span>
                 )}
+                <button 
+                  onClick={() => setSelectedReportReferral(ref)}
+                  className="ml-2 text-muted-foreground hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Report Fake Referral"
+                >
+                  <Flag size={16} />
+                </button>
               </div>
               
               <p className="text-sm text-gray-400 line-clamp-3 mb-6 flex-1">
@@ -398,6 +427,49 @@ export default function ReferralsTab() {
             referralTitle={`${selectedTrackingReferral.role_position} at ${selectedTrackingReferral.company_name}`}
             onClose={() => setSelectedTrackingReferral(null)}
           />
+        )}
+
+        {selectedReportReferral && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#15171c] border border-red-500/20 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl relative"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                <AlertTriangle className="text-red-500" size={24} />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Report Referral</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Are you sure you want to report this referral for <strong>{selectedReportReferral.role_position}</strong> at <strong>{selectedReportReferral.company_name}</strong>? Please provide a reason.
+              </p>
+              
+              <textarea
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder="Why are you reporting this? (e.g. Fake post, Scam, Inappropriate)"
+                className="w-full bg-[#1c1f26] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-red-500/50 resize-none h-32 mb-6"
+              />
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setSelectedReportReferral(null); setReportReason(''); }}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReport}
+                  disabled={isReporting || !reportReason.trim()}
+                  className="flex-1 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-500 border border-red-500/30 rounded-xl font-bold transition-all disabled:opacity-50"
+                >
+                  {isReporting ? 'Reporting...' : 'Submit Report'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
