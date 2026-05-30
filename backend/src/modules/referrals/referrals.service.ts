@@ -171,6 +171,29 @@ export class ReferralsService {
   async getLeaderboard() {
     return await referralsRepository.getLeaderboard();
   }
+
+  async reportReferral(referralId: string, reporterId: number, reason: string) {
+    const reportCount = await referralsRepository.reportReferral(referralId, reporterId, reason);
+
+    if (reportCount >= 5) {
+      const referral = await referralsRepository.getReferralById(Number(referralId));
+      if (referral) {
+        // Auto-ban/hide referral if it reaches 5 reports
+        await referralsRepository.updateReferralStatus(Number(referralId), 'Deleted', referral.user_id);
+        return { success: true, reportCount, action: 'auto_deleted' };
+      }
+    }
+    
+    return { success: true, reportCount, action: 'reported' };
+  }
+
+  async getAdminReportedReferrals() {
+    return await referralsRepository.getAdminReportedReferrals();
+  }
+
+  async deleteReferral(id: string) {
+    return await referralsRepository.deleteReferral(id);
+  }
 }
 
 export const referralsService = new ReferralsService();

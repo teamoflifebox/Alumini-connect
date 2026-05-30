@@ -14,15 +14,12 @@ import ReferralsTab from '../../shared/components/ReferralsTab';
 import DonationsTab from '../../shared/components/DonationsTab';
 import NotificationsTab from '../../shared/components/NotificationsTab';
 import MentorshipTab from '../../shared/components/MentorshipTab';
-<<<<<<< HEAD
 import SettingsPage from '../../../pages/SettingsPage';
-=======
 import DirectoryTab from '../../shared/components/DirectoryTab';
 import MessagingTab from '../../shared/components/MessagingTab';
 import { MessageSquare, Users as UsersIcon } from 'lucide-react';
 import { useCommunityStore } from '../../community/store';
 import { useQueryClient } from '@tanstack/react-query';
->>>>>>> 0343ee3084de6b4f32b2fa1838b41e120a5e8f97
 
 interface JobPost {
   id: number;
@@ -47,7 +44,7 @@ export default function AlumniDashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, logout } = useAuth();
-  
+
   const [activeTab, setActiveTab] = useState('overview');
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [myJobs, setMyJobs] = useState<JobPost[]>([]);
@@ -84,7 +81,7 @@ export default function AlumniDashboard() {
     setIsLoading(true);
     // Mock fetching data
     setTimeout(() => {
-        setIsLoading(false);
+      setIsLoading(false);
     }, 500);
   };
 
@@ -120,8 +117,8 @@ export default function AlumniDashboard() {
   const handleSaveProfile = async () => {
     setSaveStatus('Saving...');
     setTimeout(() => {
-        setSaveStatus('Saved! ✓');
-        setTimeout(() => setSaveStatus('Save Profile'), 2000);
+      setSaveStatus('Saved! ✓');
+      setTimeout(() => setSaveStatus('Save Profile'), 2000);
     }, 1000);
   };
 
@@ -136,19 +133,19 @@ export default function AlumniDashboard() {
     if (!jobForm.title || !jobForm.company || !jobForm.description) return;
     setPostingJob(true);
     setTimeout(() => {
-        setMyJobs(prev => [{
-            id: Date.now(),
-            title: jobForm.title,
-            company: jobForm.company,
-            location: jobForm.location,
-            type: jobForm.type,
-            description: jobForm.description,
-            created_at: new Date().toISOString()
-        }, ...prev]);
-        setStats(prev => ({ ...prev, jobsPosted: prev.jobsPosted + 1 }));
-        setJobForm({ title: '', company: '', location: '', type: 'Full-time', description: '', salary_range: '' });
-        setShowJobForm(false);
-        setPostingJob(false);
+      setMyJobs(prev => [{
+        id: Date.now(),
+        title: jobForm.title,
+        company: jobForm.company,
+        location: jobForm.location,
+        type: jobForm.type,
+        description: jobForm.description,
+        created_at: new Date().toISOString()
+      }, ...prev]);
+      setStats(prev => ({ ...prev, jobsPosted: prev.jobsPosted + 1 }));
+      setJobForm({ title: '', company: '', location: '', type: 'Full-time', description: '', salary_range: '' });
+      setShowJobForm(false);
+      setPostingJob(false);
     }, 1000);
   };
 
@@ -193,11 +190,10 @@ export default function AlumniDashboard() {
         <nav className="flex flex-col gap-1 flex-1">
           {navItems.map(item => (
             <button key={item.id} onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-3 py-2.5 px-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === item.id
-                  ? 'bg-primary/10 text-primary border border-primary/20'
-                  : 'text-muted-foreground hover:text-white hover:bg-white/5'
-              }`}
+              className={`flex items-center gap-3 py-2.5 px-3 rounded-xl text-sm font-medium transition-all ${activeTab === item.id
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'text-muted-foreground hover:text-white hover:bg-white/5'
+                }`}
             >
               <item.icon size={17} /> {item.label}
             </button>
@@ -300,36 +296,36 @@ export default function AlumniDashboard() {
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
-             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-               <div className="flex items-center gap-6 mb-8">
-                 <div className="w-24 h-24 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-primary font-bold text-3xl uppercase overflow-hidden shrink-0">
-                   {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{user?.name?.[0] || 'U'}</>}
-                 </div>
-                 
-                 <input 
-                   type="file" 
-                   ref={fileInputRef} 
-                   className="hidden" 
-                   accept="image/*" 
-                   onChange={(e) => {
-                     const file = e.target.files?.[0];
-                     if (file) {
-                       const objUrl = URL.createObjectURL(file);
-                       setAvatarUrl(objUrl);
-                     }
-                   }} 
-                 />
-                 <div>
-                   <h3 className="text-3xl font-bold text-white mb-2">My Profile</h3>
-                   <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm hover:bg-white/10 transition-colors text-white">
-                     Upload Avatar
-                   </button>
-                 </div>
-               </div>
-               
-               <ProfileForm />
-             </motion.div>
-           )}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex items-center gap-6 mb-8">
+                <div className="w-24 h-24 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-primary font-bold text-3xl uppercase overflow-hidden shrink-0">
+                  {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <>{user?.name?.[0] || 'U'}</>}
+                </div>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const objUrl = URL.createObjectURL(file);
+                      setAvatarUrl(objUrl);
+                    }
+                  }}
+                />
+                <div>
+                  <h3 className="text-3xl font-bold text-white mb-2">My Profile</h3>
+                  <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-medium text-sm hover:bg-white/10 transition-colors text-white">
+                    Upload Avatar
+                  </button>
+                </div>
+              </div>
+
+              <ProfileForm />
+            </motion.div>
+          )}
 
           {/* Jobs Tab */}
           {activeTab === 'jobs' && (
@@ -384,7 +380,7 @@ export default function AlumniDashboard() {
               ) : (
                 <div className="space-y-4">
                   {myJobs.map(job => (
-                     <div key={job.id} className="p-5 border border-white/5 rounded-2xl bg-[#15171c] hover:border-white/10 transition-all flex items-start justify-between gap-4">
+                    <div key={job.id} className="p-5 border border-white/5 rounded-2xl bg-[#15171c] hover:border-white/10 transition-all flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 flex-wrap mb-1">
                           <h4 className="font-bold text-white">{job.title}</h4>

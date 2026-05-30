@@ -165,28 +165,141 @@ export default function AdminDashboard() {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[
-                  { label: 'Total Users', value: stats.total, icon: Users, color: 'text-white', bg: 'from-white/5' },
-                  { label: 'Students', value: stats.students, icon: GraduationCap, color: 'text-blue-400', bg: 'from-blue-500/10' },
-                  { label: 'Alumni', value: stats.alumni, icon: Users, color: 'text-emerald-400', bg: 'from-emerald-500/10' },
-                  { label: 'Recruiters', value: stats.recruiters, icon: Briefcase, color: 'text-purple-400', bg: 'from-purple-500/10' },
-                ].map((stat, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                    className="p-6 rounded-2xl border border-white/5 bg-[#15171c] relative overflow-hidden">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.bg} to-transparent pointer-events-none`} />
-                    <stat.icon size={20} className={`${stat.color} mb-4 relative z-10`} />
-                    <p className="text-3xl font-bold text-white relative z-10">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground relative z-10 mt-1">{stat.label}</p>
-                  </motion.div>
-                ))}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Users Overview */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                  className="p-6 rounded-2xl border border-white/5 bg-[#15171c] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent pointer-events-none" />
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <Users size={24} className="text-blue-400" />
+                    <span className="text-xs font-bold px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">+12%</span>
+                  </div>
+                  <p className="text-3xl font-bold text-white relative z-10">{stats.total}</p>
+                  <p className="text-sm text-muted-foreground relative z-10 mt-1 font-medium">Total Users</p>
+                  <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-muted-foreground">
+                    <span>Students: <span className="text-white font-medium">{stats.students}</span></span>
+                    <span>Alumni: <span className="text-white font-medium">{stats.alumni}</span></span>
+                  </div>
+                </motion.div>
+
+                {/* Referrals Overview */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                  className="p-6 rounded-2xl border border-white/5 bg-[#15171c] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent pointer-events-none" />
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <Briefcase size={24} className="text-purple-400" />
+                    <span className="text-xs font-bold px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">+5%</span>
+                  </div>
+                  <p className="text-3xl font-bold text-white relative z-10">142</p>
+                  <p className="text-sm text-muted-foreground relative z-10 mt-1 font-medium">Active Referrals</p>
+                  <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-muted-foreground">
+                    <span>Applications: <span className="text-white font-medium">856</span></span>
+                    <span className="text-red-400">Reports: <span className="font-medium">3</span></span>
+                  </div>
+                </motion.div>
+
+                {/* Events Overview */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                  className="p-6 rounded-2xl border border-white/5 bg-[#15171c] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent pointer-events-none" />
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <Award size={24} className="text-emerald-400" />
+                    <span className="text-xs font-bold px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Active</span>
+                  </div>
+                  <p className="text-3xl font-bold text-white relative z-10">28</p>
+                  <p className="text-sm text-muted-foreground relative z-10 mt-1 font-medium">Upcoming Events</p>
+                  <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-muted-foreground">
+                    <span>Registrations: <span className="text-white font-medium">1.2k</span></span>
+                    <span>Completed: <span className="text-white font-medium">154</span></span>
+                  </div>
+                </motion.div>
+
+                {/* Mentorship Overview */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                  className="p-6 rounded-2xl border border-white/5 bg-[#15171c] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent pointer-events-none" />
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <GraduationCap size={24} className="text-orange-400" />
+                    <span className="text-xs font-bold px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full">+18%</span>
+                  </div>
+                  <p className="text-3xl font-bold text-white relative z-10">45</p>
+                  <p className="text-sm text-muted-foreground relative z-10 mt-1 font-medium">Active Mentorships</p>
+                  <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-muted-foreground">
+                    <span>Mentors: <span className="text-white font-medium">{stats.alumni}</span></span>
+                    <span>Pending: <span className="text-white font-medium">12</span></span>
+                  </div>
+                </motion.div>
               </div>
 
-              <div className="p-8 rounded-3xl border border-white/5 bg-[#15171c] text-center">
-                <BarChart2 size={40} className="text-muted-foreground mx-auto mb-4 opacity-40" />
-                <h3 className="font-bold text-white text-lg mb-2">Analytics Coming Soon</h3>
-                <p className="text-muted-foreground text-sm">Charts for signups, engagement, and job applications will appear here once data is collected.</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Donations & Campaigns */}
+                <div className="p-6 rounded-3xl border border-white/5 bg-[#15171c] relative overflow-hidden">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h3 className="font-bold text-white text-lg">Donations & Campaigns</h3>
+                      <p className="text-sm text-muted-foreground">Platform fundraising overview</p>
+                    </div>
+                    <button className="text-sm font-medium text-red-400 hover:text-red-300">View All</button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                          <Award size={20} className="text-yellow-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">Alumni Scholarship Fund</p>
+                          <p className="text-xs text-muted-foreground">75% of goal reached</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-emerald-400">$45,000</p>
+                        <p className="text-xs text-muted-foreground">Raised</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                          <GraduationCap size={20} className="text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">Campus Infrastructure</p>
+                          <p className="text-xs text-muted-foreground">30% of goal reached</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-emerald-400">$15,000</p>
+                        <p className="text-xs text-muted-foreground">Raised</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Community */}
+                <div className="p-6 rounded-3xl border border-white/5 bg-[#15171c] relative overflow-hidden">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h3 className="font-bold text-white text-lg">Community Activity</h3>
+                      <p className="text-sm text-muted-foreground">Recent discussions and posts</p>
+                    </div>
+                    <button className="text-sm font-medium text-red-400 hover:text-red-300">View Feed</button>
+                  </div>
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((_, idx) => (
+                      <div key={idx} className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+                        <div className="w-8 h-8 rounded-full bg-white/10 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white mb-1">How to prepare for FAANG interviews?</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">I've been preparing for a few months and wanted to ask alumni...</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">2h ago</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+
             </motion.div>
           )}
 
